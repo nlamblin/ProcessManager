@@ -12,6 +12,8 @@ Ce programme est le coeur du système. C'est lui qui lance le programme démon a
 
 Ce programme permet l'installation du démon sur le système. Une fois lancé il va demandé de renseigner des informations afin de configurer le démon.
 
+https://openclassrooms.com/courses/faire-un-demon-sous-linux
+
 ## Programme 3 : ExecProgram.py
 
 Ce programme lance un progamme du fichier fbatch en fonction des paramètres.
