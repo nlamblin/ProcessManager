@@ -1,22 +1,9 @@
+#! /usr/bin/python
+#-*- coding: utf-8 -*-
 import os
 import sys
 import signal
 import time
-
-
-
-# while True:
-# do
-#     pid = fork();
-#
-#     if(pid == 1):
-#
-#
-#     else
-#
-#
-#
-# done
 
 def readFile():
     with open("fbatch.txt", "r") as f:
@@ -25,8 +12,15 @@ def readFile():
             line = line.rstrip()
             array.append(line.split(' '))
 
-        return array
+    return array
 
+def closeProg(signal, frame):
+    sys.exit(0);
+
+signal.signal(signal.SIGINT, closeProg)
 
 for commande in readFile():
-    print(commande);
+    print commande
+
+while True:
+    continue
