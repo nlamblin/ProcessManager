@@ -7,6 +7,10 @@
 import sys
 import calendar
 
+#####
+# Global Constants declaration
+#####
+FBATCH = 'FBatch'
 
 #####
 # Functions definition
@@ -44,14 +48,10 @@ def printUsage():
           '         Lists all recurent tasks added to FBatch')
     exit(2)
 
-# NOTE: Pass exit code in argument ?
-def printError(errorString):
-    print(errorString)
-    exit(1)
-
 def verifyParam(name, value, inf_bound, sup_bound):
     if value < inf_bound or value > sup_bound:
-        printError('Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value))
+        print('Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value))
+        exit(2)
     else:
         return value
 
@@ -73,10 +73,6 @@ def add(args):
     recurrency = 'day'      # Describer of the choosen period of time
     command = ''            # Command that will be periodically executed
 
-    #####
-    # Main execution
-    #####
-
     args_length = len(args)
 
     if args_length < 3:
@@ -93,6 +89,7 @@ def add(args):
             if args_length > index:
                 arg = args[index]
 
+            # FIXME: Put out list(...) arround calendar
             if arg == '-d' or arg == '--daily' or args_length == index:
                 rec_type = 1
                 recurrency = 'day'
@@ -124,30 +121,54 @@ def add(args):
 
             print('Your command "{}" will be executed at : {}:{} each {}'.format(command, hour, minute, recurrency))
 
+
         except IndexError:
             print('Error : No value behind parameter : {}'.format(arg))
 
         except ValueError:
             print('Parameter {} needs integer value, given {}'.format(arg, args[index]))
 
-
+'''
 add(sys.argv)
 add(['command', 5, 39, '-d'])
 add(['echo test', 7, 42, '-w', 3])
 add(['error', 12, 01, '-m', 21])
 add(['exit(1)', 3, 34, '-y', 9, 5])
 add(['drop database', 23, 54])
-add(['drop database', 23, 61])
+add(['drop database', 23, 61])'''
 
 
-''' 
-Daily    Minute  Hour
-Weekly   Minute  Hour   Day
-Monthly  Minute  Hour   Day
-Yearly   Minute  Hour   Day   Month
-Alarme   Commande   Yearly   Minute   Hour   Day   Month
--d
--w
--m
--y
-'''
+def list():
+    file = open(FBATCH, 'r')
+    lines = file.readlines()
+    print('Batched   Command   Frequency   Minute   Hour   Day   Month')
+    index = 0
+    for line in lines:
+        index += 1
+        print ('{} : {}'.format(index, line))
+    file.close()
+
+def delete(args):
+    print('del')
+
+
+#####
+# Main execution
+#####
+
+argv = sys.argv
+
+if argv[1] == 'list':
+    # TODO: Sémaphore
+    list()
+
+elif argv[1] == 'add':
+    # TODO: Sémaphore
+    add(argv[2, len(argv)])
+
+elif argv[1] == 'del':
+    # TODO: Sémaphore
+    delete(argv[2, len(argv)])
+
+else:
+    printUsage()
