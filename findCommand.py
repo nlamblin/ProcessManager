@@ -5,16 +5,7 @@ import os
 import sys
 import datetime
 import calendar
-
-
-# Function to read the fbatch file
-def readFile():
-    with open("FBatch", "r") as f:
-        array = []
-        for line in f:
-            line = line.rstrip()
-            array.append(line.split('\t'))
-    return array
+import posix_ipc as pos
 
 
 # Function that converts in seconds between the current day and the next trigger
@@ -57,8 +48,8 @@ def convertInSecond(minute, hour, day, month, repeat):
 
     return int(second)
 
-
-commandList = readFile()
+queue = pos.MessageQueue('/queue', pos.O_CREAT)
+commandList = queue.receive()
 
 for line in commandList:
     minute = line[1]
