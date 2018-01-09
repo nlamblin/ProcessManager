@@ -25,9 +25,14 @@ def readFile():
 def convertInSecond(minute, heure, jour, mois, repet):
     now = datetime.datetime.now()
     if repet == "daily":
-        tomorrow = now + datetime.timedelta(days=1)
-        tomorrow = tomorrow.replace(hour=int(heure), minute = int(minute))
-        seconde = (tomorrow - now).total_seconds()
+        canExecuteToday = now.replace(hour=int(heure), minute = int(minute))
+        if(now > canExecuteToday):
+            tomorrow = now + datetime.timedelta(days=1)
+            tomorrow = tomorrow.replace(hour=int(heure), minute = int(minute))
+            seconde = (tomorrow - now).total_seconds()
+
+        else:
+            seconde = (canExecuteToday - now).total_seconds()
     elif repet == "weekly":
         nextWeek = now + datetime.timedelta(days=7)
         dayOfNextWeek = nextWeek.isoweekday()
@@ -51,14 +56,19 @@ def convertInSecond(minute, heure, jour, mois, repet):
     elif repet == "yearly":
         nextYear = now.replace(year=now.year + 1, month=int(mois),day=int(jour),hour=int(heure), minute = int(minute))
         seconde = (nextYear - now).total_seconds()
-        print (nextYear)
 
     return seconde
 
-#Execution de la commande
-def handler(commande):
-    os.system(commande)
+globalVarCommand = ""
 
+def updateCommand(command):
+    globalVarCommand = command
+
+#Execution de la commande
+def handler(SIGALRM,other):
+    print(globalVarCommand)
+    os.system(globalVarCommand)
+    sys.exit(0)
                                                 ########
                                                 # MAIN #
                                                 ########
@@ -75,12 +85,14 @@ for line in commandList:
     repet = line[5]
     command = line[6]
 
+    updateCommand(command)
     seconde = convertInSecond(minute, heure, jour, mois, repet)
 
     if(boolean_alarm == "0"):
         #On creer une alarme qui s'activera dans x secondes et executera le handler
-        signal.signal(signal.SIGALRM, handler(command))
-        signal.alarm(seconde)
+        print("creation alarme pour", command, ' execution dans ', int(seconde), ' secondes')
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(int(seconde))
 
 
 while True:

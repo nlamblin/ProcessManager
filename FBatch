@@ -1,3 +1,4 @@
+0	8	14			daily	ls
 0	54	23			daily	drop database
 0	39	5			daily	command
 0	42	7	3		weekly	echo test
