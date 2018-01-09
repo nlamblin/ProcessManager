@@ -6,11 +6,11 @@ import signal
 import time
 
 def readFile():
-    with open("fbatch.txt", "r") as f:
+    with open("FBatch", "r") as f:
         array = []
         for line in f:
             line = line.rstrip()
-            array.append(line.split(' '))
+            array.append(line.split('\t'))
 
     return array
 

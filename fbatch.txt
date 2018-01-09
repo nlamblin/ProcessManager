@@ -1,6 +1,0 @@
-1 Commande Yearly 20 2 10 1
-0 Commande Monthly 35 6 1 2
-1 Commande Dayly 14 7 30 3
-1 Commande Weekly 36 6 29 4
-0 Commande Yearly 5 5 14 5
-1 Commande Yearly 54 1 25 6
