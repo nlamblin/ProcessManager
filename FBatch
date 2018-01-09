@@ -1,4 +1,6 @@
-0   "daily command"   daily   56  3
-0   "weekly command"    weekly  23  4   4
-0   "monthly command"   monthly 9   7   23
-0   "yearly command"    yearly  30  8   15  1
+0	54	23			daily	drop database
+0	39	5			daily	command
+0	42	7	3		weekly	echo test
+0	1	12	21		monthly	error
+0	34	3	5	9	yearly	exit(1)
+0	6	23			daily	drop database
