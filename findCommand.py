@@ -19,7 +19,6 @@ def convertInSecond(minute, hour, day, month, repeat):
             tomorrow = now + datetime.timedelta(days=1)
             tomorrow = tomorrow.replace(hour=int(heure), minute=int(minute))
             second = (tomorrow - now).total_seconds()
-
         else:
             second = (canExecuteToday - now).total_seconds()
     elif repeat == "weekly":
@@ -48,20 +47,28 @@ def convertInSecond(minute, hour, day, month, repeat):
 
     return int(second)
 
-# for line in commandList:
-#     minute = line[1]
-#     heure = line[2]
-#     jour = line[3]
-#     mois = line[4]
-#     repet = line[5]
-#     command = line[6]
-filemess = pos.MessageQueue('/queue', pos.O_CREAT)
-minute = filemess.receive()
-heure = filemess.receive()
-jour = filemess.receive()
-mois = filemess.receive()
-repet = filemess.receive()
-command = filemess.receive()
-seconds = convertInSecond(minute, heure, jour, mois, repet)
-if seconds == 0:
-    os.system(command)
+def main():
+    filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+    stringReceived = filemess.receive()
+
+    commandList = []
+    for arrayTemp in stringReceived.split(";"):
+        commandList.append(arrayTemp.split('\t'))
+
+    commandList = commandList[1:-1]
+
+    for line in commandList:
+        minute = line[1]
+        heure = line[2]
+        jour = line[3]
+        mois = line[4]
+        repet = line[5]
+        command = line[6]
+
+    seconds = convertInSecond(minute, heure, jour, mois, repet)
+    if seconds == 0:
+        os.system(command)
+
+
+
+main()
