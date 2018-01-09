@@ -1,7 +1,7 @@
-0	8	14			daily	ls
+0	21	14			daily	ls
 0	54	23			daily	drop database
 0	39	5			daily	command
 0	42	7	3		weekly	echo test
 0	1	12	21		monthly	error
-0	34	3	5	9	yearly	exit(1)
-0	6	23			daily	drop database
+0	58	16			daily	ls
+0	57	16			daily	ls
