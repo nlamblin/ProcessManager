@@ -23,19 +23,28 @@ def readFile():
 fbatchContent = readFile()
 
 # creating the queue
-queue = pos.MessageQueue('/queue', pos.O_CREAT)
+try:
+    filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+    print('P1 : creation de la file de message')
+except pos.ExistentialError:
+    S = pos.unlink_message_queue('/queue') # detruit la file
+    filemess = pos.MessageQueue('/queue', pos.O_CREAT) # puis redemande la creation
 
 
-while True:
+# while True:
 
-    sleep(60 - datetime.utcnow().second)
+    # sleep(60 - datetime.utcnow().second)
 
-    pid = os.fork()
-    if pid == 0:
-        # on envoie les données avec la file mais passer un tableau ne fonctionne pas !!!
-        # il faut trouver un autre moyen
-        # envoyer line par line ????
-        queue.send(fbatchContent, None, 1)
-        os.execl('findCommand.py', 'a')
+pid = os.fork()
+if pid == 0:
+    # on envoie les données avec la file mais passer un tableau ne fonctionne pas !!!
+    # il faut trouver un autre moyen
+    # envoyer line par line ????
+    for line in fbatchContent:
+        for column in line:
+            filemess.send(column, None, 1) # envoie un message de priorité 1
 
-    continue
+
+    os.execl('findCommand.py', 'a')
+
+    # continue
