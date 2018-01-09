@@ -29,14 +29,14 @@ def convertInSecond(minute, heure, jour, mois, repet):
     now = datetime.datetime.now()
 
     if repet == "daily":
-        canExecuteToday = now.replace(hour=int(heure), minute = int(minute))
-        if(now > canExecuteToday):
+        canExecuteToday = now.replace(hour=int(heure), minute=int(minute))
+        if now > canExecuteToday:
             tomorrow = now + datetime.timedelta(days=1)
-            tomorrow = tomorrow.replace(hour=int(heure), minute = int(minute))
-            seconde = (tomorrow - now).total_seconds()
+            tomorrow = tomorrow.replace(hour=int(heure), minute=int(minute))
+            second = (tomorrow - now).total_seconds()
 
         else:
-            seconde = (canExecuteToday - now).total_seconds()
+            second = (canExecuteToday - now).total_seconds()
     elif repet == "weekly":
         nextWeek = now + datetime.timedelta(days=7)
         dayOfNextWeek = nextWeek.isoweekday()
@@ -63,19 +63,24 @@ def convertInSecond(minute, heure, jour, mois, repet):
 
     return int(second)
 
+
 globalVarCommand = ""
 
-def updateCommand(command):
+
+def setCommandToGlobalVar(command):
+    global globalVarCommand
     globalVarCommand = command
 
-#Execution de la commande
-def handler(SIGALRM,other):
-    print(globalVarCommand)
+
+# Execution de la commande
+def handler(SIGALRM, frame):
     os.system(globalVarCommand)
-    sys.exit(0)
-                                                ########
-                                                # MAIN #
-                                                ########
+    exit(0)
+
+
+########
+# MAIN #
+########
 
 commandList = readFile()
 
@@ -88,15 +93,14 @@ for line in commandList:
     repet = line[5]
     command = line[6]
 
-    updateCommand(command)
-    seconde = convertInSecond(minute, heure, jour, mois, repet)
+    setCommandToGlobalVar(command)
+    seconds = convertInSecond(minute, heure, jour, mois, repet)
 
-    if(boolean_alarm == "0"):
-        #On creer une alarme qui s'activera dans x secondes et executera le handler
-        print("creation alarme pour", command, ' execution dans ', int(seconde), ' secondes')
+    if boolean_alarm == "0":
+        # On creer une alarme qui s'activera dans x secondes et executera le handler
+        print("creation alarme pour", command, ' execution dans ', seconds, ' secondes')
         signal.signal(signal.SIGALRM, handler)
-        signal.alarm(int(seconde))
-
+        signal.alarm(seconds)
 
 while True:
     continue
