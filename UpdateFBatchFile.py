@@ -55,6 +55,10 @@ def verifyParam(name, value, inf_bound, sup_bound):
     else:
         return value
 
+# FIXME: Remove base
+def writeToFBatch(**kwargs):
+    return '0\t{minute}\t{hour}\t{day}\t{month}\t{frequency}\t{command}\n'.format(**kwargs)
+
 def add(args):
     #####
     # Var initialization
@@ -63,15 +67,10 @@ def add(args):
     index = 0               # Index of the first optional arg
     arg = 0                 # Current argument
 
-    minute = 0              # Default minute of execution
-    hour = 0                # Default hour of execution
-    month = 0               # Default month of executing
-    day_of_week = 0         # Default day of the week execution
-    day = 0                 # Default day of execution
+    data = {'command':'', 'minute':0, 'hour':0, 'frequency':'', 'day':'', 'month':''}
 
     rec_type = 1            # Period type 1 = day, 2 = week, 3 = month
-    recurrency = 'day'      # Describer of the choosen period of time
-    command = ''            # Command that will be periodically executed
+    frequency = 'day'       # Describer of the choosen period of time
 
     args_length = len(args)
 
@@ -79,48 +78,57 @@ def add(args):
         printUsage()
 
     else:
-        command = args[index]
+        data.update({'command': args[index]})
+        file = open(FBATCH, 'a')
         try:
             index += 1
             hour = verifyParam('hour', int(args[index]), 0, 23)
+            data.update({'hour':hour})
             index += 1
             minute = verifyParam('minute', int(args[index]), 0, 59)
+            data.update({'minute': minute})
+            index += 1
 
-            if args_length > index:
+            if index < args_length:
                 arg = args[index]
+            else:
+                arg = '-d'
+
+            index += 1
 
             # FIXME: Put out list(...) arround calendar
-            if arg == '-d' or arg == '--daily' or args_length == index:
+            if arg == '-d' or arg == '--daily':
                 rec_type = 1
-                recurrency = 'day'
+                frequency = 'day'
+                data.update({'frequency':'daily'})
 
             elif arg == '-w' or arg == '--weekly':
                 rec_type = 2
-                index += 1
-                day_of_week = verifyParam('day of the week', args[index], 1, 7)
-                recurrency = list(calendar.day_name)[day_of_week - 1]
+                day = verifyParam('day of the week', args[index], 1, 7)
+                frequency = list(calendar.day_name)[day - 1]
+                data.update({'frequency':'weekly', 'day':day})
 
             elif arg == '-m' or arg == '--monthly':
                 rec_type = 3
-                index += 1
                 day = verifyParam('day', (args[index]), 1, 31)
-                month_name = list(calendar.month_name)[month - 1]
-                recurrency = 'month on the {}'.format(day)
+                frequency = 'month on the {}'.format(day)
+                data.update({'frequency':'monthly', 'day':day})
 
             elif arg == '-y' or arg == '--yearly':
                 rec_type = 4
-                index += 1
                 month = verifyParam('month', int(args[index]), 1, 12)
                 index += 1
                 day = verifyParam('day', int(args[index]), 1, 31)
                 month_name = list(calendar.month_name)[month - 1]
-                recurrency = 'year on the {} of {}'.format(day, month_name)
+                frequency = 'year on the {} of {}'.format(day, month_name)
+                data.update({'frequency':'yearly', 'day':day, 'month':month})
 
             else:
                 printUsage()
 
-            print('Your command "{}" will be executed at : {}:{} each {}'.format(command, hour, minute, recurrency))
-
+            file.write(writeToFBatch(**data))
+            file.flush()
+            print('Your command "{command}" will be executed at : {hour}:{minute}'.format(**data) + ' each {}'.format(frequency))
 
         except IndexError:
             print('Error : No value behind parameter : {}'.format(arg))
@@ -128,14 +136,16 @@ def add(args):
         except ValueError:
             print('Parameter {} needs integer value, given {}'.format(arg, args[index]))
 
-'''
-add(sys.argv)
+        finally:
+            file.close()
+
+add(['drop database', 23, 54])
 add(['command', 5, 39, '-d'])
 add(['echo test', 7, 42, '-w', 3])
-add(['error', 12, 01, '-m', 21])
+add(['error', 12, 1, '-m', 21])
 add(['exit(1)', 3, 34, '-y', 9, 5])
-add(['drop database', 23, 54])
-add(['drop database', 23, 61])'''
+add(['drop database', 23, 6])
+'''
 
 
 def list():
@@ -172,3 +182,4 @@ elif argv[1] == 'del':
 
 else:
     printUsage()
+'''
