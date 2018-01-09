@@ -19,10 +19,10 @@ def readFile():
 
 # Function that converts in seconds between the current day and the next trigger
 # according to the parameters entered in fbatch
-def convertInSecond(minute, heure, jour, mois, repet):
+def convertInSecond(minute, hour, day, month, repeat):
     now = datetime.datetime.now()
 
-    if repet == "daily":
+    if repeat == "daily":
         canExecuteToday = now.replace(hour=int(heure), minute=int(minute))
         if now > canExecuteToday:
             tomorrow = now + datetime.timedelta(days=1)
@@ -31,10 +31,10 @@ def convertInSecond(minute, heure, jour, mois, repet):
 
         else:
             second = (canExecuteToday - now).total_seconds()
-    elif repet == "weekly":
+    elif repeat == "weekly":
         nextWeek = now + datetime.timedelta(days=7)
         dayOfNextWeek = nextWeek.isoweekday()
-        diff = dayOfNextWeek - int(jour)
+        diff = dayOfNextWeek - int(day)
         if diff > 0:
             diff = diff + 7
             nextWeek = now - datetime.timedelta(days=diff)
@@ -42,17 +42,17 @@ def convertInSecond(minute, heure, jour, mois, repet):
             diff = diff * (-1)
             diff = diff + 7
             nextWeek = now + datetime.timedelta(days=diff)
-        nextWeek = nextWeek.replace(hour=int(heure), minute=int(minute))
+        nextWeek = nextWeek.replace(hour=int(hour), minute=int(minute))
         second = (nextWeek - now).total_seconds()
-    elif repet == "monthly":
+    elif repeat == "monthly":
         month_days = calendar.monthrange(now.year, now.month)[1]
         nextmonth = now + datetime.timedelta(days=month_days)
         if nextmonth.day != now.day:
-            nextmonth.replace(days=1) - datetime.timedelta(days=1)
-        nextmonth = nextmonth.replace(day=int(jour), hour=int(heure), minute=int(minute))
+            nextmonth.replace(day=1) - datetime.timedelta(days=1)
+        nextmonth = nextmonth.replace(day=int(day), hour=int(heure), minute=int(minute))
         second = (nextmonth - now).total_seconds()
-    elif repet == "yearly":
-        nextYear = now.replace(year=now.year + 1, month=int(mois), day=int(jour), hour=int(heure), minute=int(minute))
+    elif repeat == "yearly":
+        nextYear = now.replace(year=now.year + 1, month=int(month), day=int(day), hour=int(hour), minute=int(minute))
         second = (nextYear - now).total_seconds()
 
     return int(second)
@@ -61,7 +61,6 @@ def convertInSecond(minute, heure, jour, mois, repet):
 commandList = readFile()
 
 for line in commandList:
-    boolean_alarm = line[0]
     minute = line[1]
     heure = line[2]
     jour = line[3]
@@ -71,5 +70,5 @@ for line in commandList:
 
     seconds = convertInSecond(minute, heure, jour, mois, repet)
 
-    if seconds == "0":
+    if seconds == 0:
         os.system(command)

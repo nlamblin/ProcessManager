@@ -3,11 +3,12 @@
 
 import os
 import sys
+from datetime import datetime
 from time import sleep
 
 while True:
 
-    sleep(60)
+    sleep(60 - datetime.utcnow().second)
 
     pid = os.fork()
     if pid == 0:
