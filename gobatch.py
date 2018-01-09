@@ -1,5 +1,6 @@
 #! /usr/bin/python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*
+
 import os
 import sys
 import signal
@@ -7,11 +8,12 @@ import time
 import datetime
 import calendar
 
-                                                #############
-                                                # FUNCTIONS #
-                                                #############
 
-#Fonction permettant de lire le fichier fbatch
+#############
+# FUNCTIONS #
+#############
+
+# Function to read the fbatch file
 def readFile():
     with open("FBatch", "r") as f:
         array = []
@@ -20,10 +22,12 @@ def readFile():
             array.append(line.split('\t'))
     return array
 
-#Fonction qui convertit en seconde entre le jour courant et le prochain declenchement
-#en fonction des paramètres inscrit dans fbatch
+
+# Function that converts in seconds between the current day and the next trigger
+# according to the parameters entered in fbatch
 def convertInSecond(minute, heure, jour, mois, repet):
     now = datetime.datetime.now()
+
     if repet == "daily":
         canExecuteToday = now.replace(hour=int(heure), minute = int(minute))
         if(now > canExecuteToday):
@@ -44,20 +48,20 @@ def convertInSecond(minute, heure, jour, mois, repet):
             diff = diff * (-1)
             diff = diff + 7
             nextWeek = now + datetime.timedelta(days=diff)
-        nextWeek = nextWeek.replace(hour=int(heure), minute = int(minute))
-        seconde = (nextWeek - now).total_seconds()
+        nextWeek = nextWeek.replace(hour=int(heure), minute=int(minute))
+        second = (nextWeek - now).total_seconds()
     elif repet == "monthly":
         month_days = calendar.monthrange(now.year, now.month)[1]
         nextmonth = now + datetime.timedelta(days=month_days)
         if nextmonth.day != now.day:
             nextmonth.replace(days=1) - datetime.timedelta(days=1)
-        nextmonth = nextmonth.replace(day=int(jour),hour=int(heure), minute = int(minute))
-        seconde = (nextmonth - now).total_seconds()
+        nextmonth = nextmonth.replace(day=int(jour), hour=int(heure), minute=int(minute))
+        second = (nextmonth - now).total_seconds()
     elif repet == "yearly":
-        nextYear = now.replace(year=now.year + 1, month=int(mois),day=int(jour),hour=int(heure), minute = int(minute))
-        seconde = (nextYear - now).total_seconds()
+        nextYear = now.replace(year=now.year + 1, month=int(mois), day=int(jour), hour=int(heure), minute=int(minute))
+        second = (nextYear - now).total_seconds()
 
-    return seconde
+    return int(second)
 
 globalVarCommand = ""
 
@@ -72,7 +76,6 @@ def handler(SIGALRM,other):
                                                 ########
                                                 # MAIN #
                                                 ########
-
 
 commandList = readFile()
 
