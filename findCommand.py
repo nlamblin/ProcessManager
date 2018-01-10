@@ -8,26 +8,16 @@ import calendar
 import posix_ipc as pos
 
 
-# Function to read the fbatch file
-def readFile():
-    with open("FBatch", "r") as f:
-        array = []
-        for line in f:
-            line = line.rstrip()
-            array.append(line.split('\t'))
-    return array
-
-
 # Function that converts in seconds between the current day and the next trigger
 # according to the parameters entered in fbatch
-def convertInSecond(minute, hour, day, month, repeat):
+def secondsLeft(minute, hour, day, month, repeat):
     now = datetime.datetime.now()
 
     if repeat == "daily":
-        canExecuteToday = now.replace(hour=int(heure), minute=int(minute))
+        canExecuteToday = now.replace(hour=int(hour), minute=int(minute))
         if now > canExecuteToday:
             tomorrow = now + datetime.timedelta(days=1)
-            tomorrow = tomorrow.replace(hour=int(heure), minute=int(minute))
+            tomorrow = tomorrow.replace(hour=int(hour), minute=int(minute))
             second = (tomorrow - now).total_seconds()
         else:
             second = (canExecuteToday - now).total_seconds()
@@ -49,7 +39,7 @@ def convertInSecond(minute, hour, day, month, repeat):
         nextmonth = now + datetime.timedelta(days=month_days)
         if nextmonth.day != now.day:
             nextmonth.replace(day=1) - datetime.timedelta(days=1)
-        nextmonth = nextmonth.replace(day=int(day), hour=int(heure), minute=int(minute))
+        nextmonth = nextmonth.replace(day=int(day), hour=int(hour), minute=int(minute))
         second = (nextmonth - now).total_seconds()
     elif repeat == "yearly":
         nextYear = now.replace(year=now.year + 1, month=int(month), day=int(day), hour=int(hour), minute=int(minute))
@@ -58,24 +48,28 @@ def convertInSecond(minute, hour, day, month, repeat):
     return int(second)
 
 
+# get the message
 filemess = pos.MessageQueue('/queue', pos.O_CREAT)
-stringReceived = filemess.receive()
+stringReceived = filemess.receive()[0]
 
-stringSplitted = stringReceived.split(';')
+# split the message and remove the last element because it is empty
+stringSplitted = stringReceived.split(';')[:-1]
 
 commandList = []
 for arrayTemp in stringSplitted:
-    commandList.append(arrayTemp.split('\t'))
-    commandList = commandList[1:-1]
+    # split the message and remove the last element because it is empty
+    commandList.append(arrayTemp.split('\t')[:-1])
 
+# cross the array which contains the file content
 for line in commandList:
     minute = line[1]
-    heure = line[2]
-    jour = line[3]
-    mois = line[4]
-    repet = line[5]
+    hour = line[2]
+    day = line[3]
+    month = line[4]
+    repeat = line[5]
     command = line[6]
 
-    seconds = convertInSecond(minute, heure, jour, mois, repet)
+    # get seconds left before the command execution
+    seconds = secondsLeft(minute, hour, day, month, repeat)
     if seconds == 0:
         os.system(command)

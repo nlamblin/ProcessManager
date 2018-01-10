@@ -18,6 +18,7 @@ def readFile():
             array.append(line.split('\t'))
     return array
 
+
 # first reading of the fbatch file
 fbatchContent = readFile()
 
@@ -36,8 +37,10 @@ while True:
                 stringToSend += column + "\t"
             stringToSend += ";"
 
+        # send the file content
         filemess.send(stringToSend, 1)
 
+        # executs findCommand program
         os.execl('findCommand.py', 'a')
 
     continue
