@@ -47,28 +47,21 @@ def convertInSecond(minute, hour, day, month, repeat):
 
     return int(second)
 
-def main():
-    filemess = pos.MessageQueue('/queue', pos.O_CREAT)
-    stringReceived = filemess.receive()
+filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+stringReceived = filemess.receive()
 
-    commandList = []
-    for arrayTemp in stringReceived.split(";"):
-        commandList.append(arrayTemp.split('\t'))
-
+commandList = []
+for arrayTemp in stringReceived.split(";"):
+    commandList.append(arrayTemp.split('\t'))
     commandList = commandList[1:-1]
-
     for line in commandList:
-        minute = line[1]
-        heure = line[2]
-        jour = line[3]
-        mois = line[4]
-        repet = line[5]
-        command = line[6]
+    minute = line[1]
+    heure = line[2]
+    jour = line[3]
+    mois = line[4]
+    repet = line[5]
+    command = line[6]
 
-    seconds = convertInSecond(minute, heure, jour, mois, repet)
-    if seconds == 0:
-        os.system(command)
-
-
-
-main()
+seconds = convertInSecond(minute, heure, jour, mois, repet)
+if seconds == 0:
+    os.system(command)
