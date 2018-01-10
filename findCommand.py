@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 # -*- coding: utf-8 -*
 
 import os
@@ -6,6 +6,16 @@ import sys
 import datetime
 import calendar
 import posix_ipc as pos
+
+
+# Function to read the fbatch file
+def readFile():
+    with open("FBatch", "r") as f:
+        array = []
+        for line in f:
+            line = line.rstrip()
+            array.append(line.split('\t'))
+    return array
 
 
 # Function that converts in seconds between the current day and the next trigger
@@ -47,14 +57,18 @@ def convertInSecond(minute, hour, day, month, repeat):
 
     return int(second)
 
+
 filemess = pos.MessageQueue('/queue', pos.O_CREAT)
 stringReceived = filemess.receive()
 
+stringSplitted = stringReceived.split(';')
+
 commandList = []
-for arrayTemp in stringReceived.split(";"):
+for arrayTemp in stringSplitted:
     commandList.append(arrayTemp.split('\t'))
     commandList = commandList[1:-1]
-    for line in commandList:
+
+for line in commandList:
     minute = line[1]
     heure = line[2]
     jour = line[3]
@@ -62,6 +76,6 @@ for arrayTemp in stringReceived.split(";"):
     repet = line[5]
     command = line[6]
 
-seconds = convertInSecond(minute, heure, jour, mois, repet)
-if seconds == 0:
-    os.system(command)
+    seconds = convertInSecond(minute, heure, jour, mois, repet)
+    if seconds == 0:
+        os.system(command)
