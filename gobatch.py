@@ -31,14 +31,9 @@ def convertFileToString():
 filemess = pos.MessageQueue('/queue', pos.O_CREAT)
 stringToSend = convertFileToString()
 
-def addToString(stringUpdated):
+def addToString():
     global stringToSend
-    strRead = ""
-    for line in stringUpdated:
-        for column in line:
-            strRead += column + "\t"
-        strRead += ";"
-    stringToSend = strRead
+    stringToSend = convertFileToString()
 
 
 while True:
