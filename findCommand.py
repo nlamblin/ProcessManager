@@ -1,8 +1,7 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 # -*- coding: utf-8 -*
 
 import os
-import sys
 import datetime
 import calendar
 import posix_ipc as pos
