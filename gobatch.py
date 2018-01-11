@@ -31,7 +31,7 @@ def convertFileToString():
 filemess = pos.MessageQueue('/queue', pos.O_CREAT)
 stringToSend = convertFileToString()
 
-def addToString():
+def updateString():
     global stringToSend
     stringToSend = convertFileToString()
 
