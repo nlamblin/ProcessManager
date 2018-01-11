@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 # -*- coding: utf8 -*-
 
+# TODO: Change during install
 STDOUT_FILE = 'STDOUT'
 STDERR_FILE = 'STDERR'
 

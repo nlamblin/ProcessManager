@@ -9,26 +9,21 @@ import sys
 import calendar
 import posix_ipc as pos
 
-from gobatch import updateString
+# from gobatch import updateString
+from Logger import logInfo
+from Logger import logError
 
 #####
 # Global Constants declaration
 #####
+
 FBATCH = 'FBatch'
 
-#####
-# Semaphore declaration
-#####
-try:
-    # Creating semaphore
-    print('Creating semaphore')
-    semaphore = pos.Semaphore('/S1', pos.O_CREAT|pos.O_EXCL, initial_value=1)
-    print('Created semaphore')
-
-except pos.ExistentialError:
-    # Semaphore already created
-    print('Semaphore already created')
-    semaphore = pos.Semaphore('/S1', pos.O_CREAT)
+# TODO: Wrapper try exception
+# TODO: Exit function
+# TODO: Log Info
+# TODO: Log Error
+# TODO: Tests
 
 # semaphore.unlink()
 # exit()
@@ -94,7 +89,7 @@ def addNewTask(args):
     index = 0               # Index of the first optional arg
     arg = 0                 # Current argument
 
-    data = {'command':'', 'minute':0, 'hour':0, 'frequency':'0', 'day':'0', 'month':'0'}
+    data = {'command': '', 'minute': 0, 'hour': 0, 'frequency': '0', 'day': '0', 'month': '0'}
 
     args_length = len(args)
 
@@ -122,17 +117,17 @@ def addNewTask(args):
 
             if arg == '-d' or arg == '--daily':
                 frequency = 'day'
-                data.update({'frequency':'daily'})
+                data.update({'frequency': 'daily'})
 
             elif arg == '-w' or arg == '--weekly':
                 day = verifyParam('day of the week', args[index], 1, 7)
                 frequency = list(calendar.day_name)[day - 1]
-                data.update({'frequency':'weekly', 'day':day})
+                data.update({'frequency': 'weekly', 'day': day})
 
             elif arg == '-m' or arg == '--monthly':
                 day = verifyParam('day', (args[index]), 1, 31)
                 frequency = 'month on the {}'.format(day)
-                data.update({'frequency':'monthly', 'day':day})
+                data.update({'frequency': 'monthly', 'day': day})
 
             elif arg == '-y' or arg == '--yearly':
                 month = verifyParam('month', int(args[index]), 1, 12)
@@ -140,14 +135,14 @@ def addNewTask(args):
                 day = verifyParam('day', int(args[index]), 1, 31)
                 month_name = list(calendar.month_name)[month - 1]
                 frequency = 'year on the {} of {}'.format(day, month_name)
-                data.update({'frequency':'yearly', 'day':day, 'month':month})
+                data.update({'frequency': 'yearly', 'day': day, 'month': month})
 
             else:
                 printUsage()
 
             file.write(writeToFBatch(**data))
             file.flush()
-            updateString()
+            # updateString()
             print('Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data))
 
         except IndexError:
@@ -190,7 +185,7 @@ def deleteTask():
         exit(0)
 
     print(tasks)
-    index = raw_input('Give id of the tasks you which to delete (q to exit)')
+    index = input('Give id of the tasks you which to delete (q to exit)')
 
     if index == 'q' or index == '':
         print("User aborted deletion")
@@ -213,10 +208,9 @@ def deleteTask():
         output += 'Minute\tHour\tDay\tMonth\tFrequency\tCommand\n'
         output += line
         output += '\nAre you sure ? (y/N)'
-        print(output)
 
         try:
-            answer = raw_input(output)
+            answer = input(output)
 
             if not answer or answer == 'n':
                 print("User aborted deletion")
@@ -232,8 +226,8 @@ def deleteTask():
                 lines = ''.join(lines)
                 fbatch_file.write(lines)
                 fbatch_file.close()
-                updateString()
-                print('record deleted successfully')
+                # updateString()
+                print('Recurrent task deleted successfully')
 
         except SyntaxError:
             print('Error : Answer invalid')
@@ -261,35 +255,49 @@ def V():
 
 argv = sys.argv
 
-if argv[1] == 'list':
-    print(listAllTasks(True))
+if len(argv) >= 2:
 
-elif argv[1] == 'add':
-    # semaphore.acquire()
-    P()
-    try:
-        addNewTask(argv[2, len(argv) - 1])
+    if argv[1] == 'list':
+        print(listAllTasks(True))
 
-    finally:
-        V()
-        #semaphore.release()
+    elif argv[1] == 'help':
+        printUsage()
 
-elif argv[1] == 'del':
-    # semaphore.acquire()
-    P()
-    try:
-        deleteTask()
+    elif argv[1] != 'add' and argv[1] != 'del':
+        print('Command not found')
+        printUsage()
 
-    finally:
-        V()
-        # semaphore.release()
+    else:
+        try:
+            # Creating semaphore
+            print('Creating semaphore')
+            semaphore = pos.Semaphore('/S1', pos.O_CREAT|pos.O_EXCL, initial_value=1)
+            print('Created semaphore')
 
-elif argv[1] == 'help':
-    printUsage()
+        except pos.ExistentialError:
+            # Semaphore already created
+            print('Semaphore already created')
+            semaphore = pos.Semaphore('/S1', pos.O_CREAT)
 
-else:
-    print('Command not found')
-    printUsage()
+        if argv[1] == 'add':
+            P()  # semaphore.acquire()
+            try:
+                addNewTask(argv[2, len(argv) - 1])
+
+            finally:
+                V()  # semaphore.release()
+
+        elif argv[1] == 'del':
+            P()  # semaphore.acquire()
+            try:
+                deleteTask()
+
+            finally:
+                V()  # semaphore.release()
+
+        else:
+            print('Null')
+
 
 '''
 addNewTask(['drop database', 23, 54])
