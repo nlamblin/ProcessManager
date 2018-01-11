@@ -19,12 +19,6 @@ from Logger import logError
 
 FBATCH = 'FBatch'
 
-# TODO: Wrapper try exception
-# TODO: Exit function
-# TODO: Log Info
-# TODO: Log Error
-# TODO: Tests
-
 # semaphore.unlink()
 # exit()
 
@@ -71,7 +65,7 @@ def printUsage():
 
 def verifyParam(name, value, inf_bound, sup_bound):
     if value < inf_bound or value > sup_bound:
-        print('Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value))
+        logError('Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value), True, True)
         exit(2)
     else:
         return value
@@ -143,13 +137,15 @@ def addNewTask(args):
             file.write(writeToFBatch(**data))
             file.flush()
             # updateString()
-            print('Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data))
+            logInfo('Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
 
         except IndexError:
-            print('Error : No value behind parameter : {}'.format(arg))
+            logError('Error : No value behind parameter : {}'.format(arg), True, True)
+            exit(2)
 
         except ValueError:
-            print('Parameter {} needs integer value, given {}'.format(arg, args[index]))
+            logError('Parameter {} needs integer value, given {}'.format(arg, args[index]), True, True)
+            exit(2)
 
         finally:
             file.close()
@@ -181,25 +177,25 @@ def deleteTask():
     tasks_count = len(lines)
 
     if tasks_count == 0:
-        print('No tasks in FBatfh file for the moment, add some first')
+        logError('No tasks in FBatch file for the moment, add some first', True, False)
         exit(0)
 
     print(tasks)
     index = input('Give id of the tasks you which to delete (q to exit)')
 
     if index == 'q' or index == '':
-        print("User aborted deletion")
+        logInfo("User aborted deletion", True)
         exit(0)
 
     try:
         index = int(index)
 
     except ValueError:
-        print('Id invalid, given "{}"'.format(index))
+        logError('Id invalid, given "{}"'.format(index), True, True)
         exit(1)
 
     if index > tasks_count:
-        print('Id not found, "{}" given, only {} tasks'.format(index, tasks_count))
+        logError('Id not found, "{}" given, only {} tasks'.format(index, tasks_count), True, True)
         exit(1)
 
     elif 0 < index <= tasks_count:
@@ -213,7 +209,7 @@ def deleteTask():
             answer = input(output)
 
             if not answer or answer == 'n':
-                print("User aborted deletion")
+                logInfo("User aborted deletion", True)
                 exit(0)
 
             elif answer == 'y':
@@ -227,26 +223,27 @@ def deleteTask():
                 fbatch_file.write(lines)
                 fbatch_file.close()
                 # updateString()
-                print('Recurrent task deleted successfully')
+                logInfo('Recurrent task deleted successfully', True)
 
         except SyntaxError:
-            print('Error : Answer invalid')
+            logError('Error : Answer invalid', True, True)
+            exit(1)
 
     else:
-        print('Id not valid')
+        logError('Id not valid', True, True)
         exit(1)
 
 
 def P():
-    print('Acquiring semaphore')
+    logInfo('[PGCYCL] Acquiring semaphore', False)
     semaphore.acquire()
-    print('Semaphore acquired')
+    logInfo('[PGCYCL] Semaphore acquired', False)
 
 
 def V():
-    print('Releasing semaphore')
+    logInfo('[PGCYCL] Releasing semaphore', False)
     semaphore.release()
-    print('Semaphore released')
+    logInfo('[PGCYCL] Semaphore released', False)
 
 
 #####
@@ -264,20 +261,21 @@ if len(argv) >= 2:
         printUsage()
 
     elif argv[1] != 'add' and argv[1] != 'del':
-        print('Command not found')
+        logError('Command not found', True, True)
         printUsage()
 
     else:
         try:
             # Creating semaphore
-            print('Creating semaphore')
+            logInfo('[PGCYCL] Creating semaphore', False)
             semaphore = pos.Semaphore('/S1', pos.O_CREAT|pos.O_EXCL, initial_value=1)
-            print('Created semaphore')
+            logInfo('[PGCYCL] Created semaphore', False)
 
         except pos.ExistentialError:
             # Semaphore already created
-            print('Semaphore already created')
+            logInfo('[PGCYCL] Semaphore already created', False)
             semaphore = pos.Semaphore('/S1', pos.O_CREAT)
+            logInfo('[PGCYCL] Using existing semaphore', False)
 
         if argv[1] == 'add':
             P()  # semaphore.acquire()
@@ -294,9 +292,6 @@ if len(argv) >= 2:
 
             finally:
                 V()  # semaphore.release()
-
-        else:
-            print('Null')
 
 
 '''
