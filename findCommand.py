@@ -48,20 +48,27 @@ def secondsLeft(minute, hour, day, month, repeat):
     return int(second)
 
 
-# get the message
-filemess = pos.MessageQueue('/queue', pos.O_CREAT)
-stringReceived = filemess.receive()[0]
+# Get the message and convert the string (which contains the file content) to array
+def convertStringToArray():
+    # get the message
+    filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+    stringReceived = filemess.receive()[0]
 
-# split the message and remove the last element because it is empty
-stringSplitted = stringReceived.split(';')[:-1]
-
-commandList = []
-for arrayTemp in stringSplitted:
     # split the message and remove the last element because it is empty
-    commandList.append(arrayTemp.split('\t')[:-1])
+    stringSplitted = stringReceived.split(';')[:-1]
+
+    commandList = []
+    for arrayTemp in stringSplitted:
+        # split the message and remove the last element because it is empty
+        commandList.append(arrayTemp.split('\t')[:-1])
+
+    return commandList
+
+
+fileContent = convertStringToArray()
 
 # cross the array which contains the file content
-for line in commandList:
+for line in fileContent:
     minute = line[1]
     hour = line[2]
     day = line[3]

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*
 
 import os
-import sys
 import posix_ipc as pos
 
 from datetime import datetime
@@ -19,28 +18,32 @@ def readFile():
     return array
 
 
-# first reading of the fbatch file
-fbatchContent = readFile()
+def convertFileToString():
+    # first reading of the fbatch file
+    fbatchContent = readFile()
+    stringToSend = ''
+
+    for line in fbatchContent:
+        for column in line:
+            stringToSend += column + "\t"
+        stringToSend += ";"
+
+    return stringToSend
+
 
 # creating the queue
 filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+stringToSend = convertFileToString()
 
 while True:
-    stringToSend = ""
-
     sleep(60 - datetime.utcnow().second)
 
     pid = os.fork()
     if pid == 0:
-        for line in fbatchContent:
-            for column in line:
-                stringToSend += column + "\t"
-            stringToSend += ";"
-
         # send the file content
         filemess.send(stringToSend, 1)
 
-        # executs findCommand program
+        # executs findCommand.py program
         os.execl('findCommand.py', 'a')
 
     continue
