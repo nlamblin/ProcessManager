@@ -45,8 +45,16 @@ file.write(fileContent)
 file.close()
 
 # reload daemons list
-print('Reload the daemons list..... \n')
+print('Reload the daemons list..... \n\n\n')
 os.system('sudo systemctl daemon-reload')
 
-print('- To start the daemon use : systemctl start processManager.service')
-print('- To enable the daemon at the startup use : systemctl enable processManager.service')
+manual = 'Some infos: \n\n' \
+         '       - To start the daemon use:                  systemctl start processManager.service \n' \
+         '       - To kill the daemon use:                   systemctl kill processManager.service \n' \
+         '       - To restart the daemon use:                systemctl restart processManager.service \n' \
+         '       - To check is the daemon is active use:     systemctl is-active processManager.service \n' \
+         '       - To check ths status of the daemon use:    systemctl status processManager.service \n' \
+         '       - To enable the daemon at the startup use:  systemctl enable processManager.service \n' \
+         '       - To disable the daemon at the startup use: systemctl disable processManager.service \n' \
+
+print(manual)
