@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 # -*- coding: utf8 -*-
 
 #####
@@ -8,7 +9,7 @@ import sys
 import calendar
 import posix_ipc as pos
 
-# from gobatch2 import updateString
+from gobatch import updateString
 
 #####
 # Global Constants declaration
@@ -16,8 +17,26 @@ import posix_ipc as pos
 FBATCH = 'FBatch'
 
 #####
+# Semaphore declaration
+#####
+try:
+    # Creating semaphore
+    print('Creating semaphore')
+    semaphore = pos.Semaphore('/S1', pos.O_CREAT|pos.O_EXCL, initial_value=1)
+    print('Created semaphore')
+
+except pos.ExistentialError:
+    # Semaphore already created
+    print('Semaphore already created')
+    semaphore = pos.Semaphore('/S1', pos.O_CREAT)
+
+# semaphore.unlink()
+# exit()
+
+#####
 # Functions definition
 #####
+
 
 # TODO: FIXME: Better man page
 def printUsage():
@@ -48,8 +67,12 @@ def printUsage():
           '         Lists all recurrent tasks added to FBatch and allow\n'
           '         you to choose which one to delete\n'
           '     list\n'
-          '         Lists all recurrent tasks added to FBatch')
+          '         Lists all recurrent tasks added to FBatch'
+          ''
+          '     help\n'
+          '         Display this man page')
     exit(2)
+
 
 def verifyParam(name, value, inf_bound, sup_bound):
     if value < inf_bound or value > sup_bound:
@@ -58,8 +81,10 @@ def verifyParam(name, value, inf_bound, sup_bound):
     else:
         return value
 
+
 def writeToFBatch(**kwargs):
     return '{minute}\t{hour}\t{day}\t{month}\t{frequency}\t{command}\n'.format(**kwargs)
+
 
 def addNewTask(args):
     #####
@@ -122,6 +147,7 @@ def addNewTask(args):
 
             file.write(writeToFBatch(**data))
             file.flush()
+            updateString()
             print('Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data))
 
         except IndexError:
@@ -132,6 +158,7 @@ def addNewTask(args):
 
         finally:
             file.close()
+
 
 def listAllTasks(withIndex):
     file = open(FBATCH, 'r')
@@ -151,6 +178,7 @@ def listAllTasks(withIndex):
     file.close()
 
     return output
+
 
 def deleteTask():
     tasks = listAllTasks(True)
@@ -179,21 +207,20 @@ def deleteTask():
         print('Id not found, "{}" given, only {} tasks'.format(index, tasks_count))
         exit(1)
 
-    elif index > 0 and index <= tasks_count:
+    elif 0 < index <= tasks_count:
         line = lines[index - 1]
-        str = 'Deleting tasks {} :\n'.format(index)
-        str += 'Minute\tHour\tDay\tMonth\tFrequency\tCommand\n'
-        str += line
-        str += '\nAre you sure ? (y/N)'
-        print(str)
+        output = 'Deleting tasks {} :\n'.format(index)
+        output += 'Minute\tHour\tDay\tMonth\tFrequency\tCommand\n'
+        output += line
+        output += '\nAre you sure ? (y/N)'
+        print(output)
 
         try:
-            answer = raw_input(str)
+            answer = raw_input(output)
 
             if not answer or answer == 'n':
                 print("User aborted deletion")
                 exit(0)
-
 
             elif answer == 'y':
                 lines.pop(index - 1)
@@ -201,10 +228,11 @@ def deleteTask():
                 # Resets file content
                 open(FBATCH, 'w').close()
 
-                file = open(FBATCH, 'a')
+                fbatch_file = open(FBATCH, 'a')
                 lines = ''.join(lines)
-                file.write(lines)
-                file.close()
+                fbatch_file.write(lines)
+                fbatch_file.close()
+                updateString()
                 print('record deleted successfully')
 
         except SyntaxError:
@@ -215,33 +243,55 @@ def deleteTask():
         exit(1)
 
 
+def P():
+    print('Acquiring semaphore')
+    semaphore.acquire()
+    print('Semaphore acquired')
+
+
+def V():
+    print('Releasing semaphore')
+    semaphore.release()
+    print('Semaphore released')
+
+
 #####
 # Main execution
 #####
 
 argv = sys.argv
 
-
-
-
-'''
 if argv[1] == 'list':
-    # TODO: Sémaphore
     print(listAllTasks(True))
 
-
 elif argv[1] == 'add':
-    # TODO: Sémaphore
-    addNewTask(argv[2, len(argv)])
+    # semaphore.acquire()
+    P()
+    try:
+        addNewTask(argv[2, len(argv) - 1])
+
+    finally:
+        V()
+        #semaphore.release()
 
 elif argv[1] == 'del':
-    # TODO: Sémaphore
-    deleteTask()
+    # semaphore.acquire()
+    P()
+    try:
+        deleteTask()
 
-else:
+    finally:
+        V()
+        # semaphore.release()
+
+elif argv[1] == 'help':
     printUsage()
 
-deleteTask()
+else:
+    print('Command not found')
+    printUsage()
+
+'''
 addNewTask(['drop database', 23, 54])
 addNewTask(['command', 5, 39, '-d'])
 addNewTask(['echo test', 7, 42, '-w', 3])
