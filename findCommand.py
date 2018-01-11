@@ -23,14 +23,9 @@ def secondsLeft(minute, hour, day, month, repeat):
     elif repeat == "weekly":
         nextWeek = now + datetime.timedelta(days=7)
         dayOfNextWeek = nextWeek.isoweekday()
-        diff = dayOfNextWeek - int(day)
-        if diff > 0:
-            diff = diff + 7
-            nextWeek = now - datetime.timedelta(days=diff)
-        else:
-            diff = diff * (-1)
-            diff = diff + 7
-            nextWeek = now + datetime.timedelta(days=diff)
+        diff = int(day) - dayOfNextWeek
+        diff = diff + 7
+        nextWeek = now + datetime.timedelta(days=diff)
         nextWeek = nextWeek.replace(hour=int(hour), minute=int(minute))
         second = (nextWeek - now).total_seconds()
     elif repeat == "monthly":
