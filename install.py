@@ -9,21 +9,15 @@ if os.geteuid() != 0:
     exit('You need to have root privileges to run this script. Use \'sudo ./install.py\'.')
 
 # Title
-print('----- ProcessManager install ----- \n')
+print('---------- ProcessManager install ----------\n\n')
 
+# get processManager directory
 time.sleep(1)
-
-# Get path of gobatch file
-processManagerPath = input("Please enter the path (absolute) where the ProcessManager folder is located "
-                           "(like /home/user/ProcessManager) : ")
-
-# Check is directory exists
-directoryExists = os.path.isdir(processManagerPath)
-
-if not directoryExists:
-    exit('Error : directory does not exists.')
+print('Get the ProcessManager directory path.....\n')
+processManagerPath = os.getcwd()
 
 # Copy ProcessManager directory into /usr/local/bin/
+time.sleep(1)
 print('Copy sources into /usr/local/bin..... \n')
 os.system('cp -r ' + processManagerPath + ' /usr/local/bin')
 
@@ -44,11 +38,13 @@ file = open('/etc/systemd/system/processManager.service', 'w')
 file.write(fileContent)
 file.close()
 
-# reload daemons list
+# Reload daemons list
+time.sleep(1)
 print('Reload the daemons list..... \n\n\n')
 os.system('sudo systemctl daemon-reload')
 
-manual = 'Some infos: \n\n' \
+manual = '---------- Installation done ----------\n\n' \
+         'Some infos: \n\n' \
          '       - To start the daemon use:                  systemctl start processManager.service \n' \
          '       - To kill the daemon use:                   systemctl kill processManager.service \n' \
          '       - To restart the daemon use:                systemctl restart processManager.service \n' \
