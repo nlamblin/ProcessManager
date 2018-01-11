@@ -30,7 +30,7 @@ def convertFileToString():
 
 
 # change the working directory
-# os.chdir('/usr/local/bin/ProcessManager')
+os.chdir('/usr/local/bin/ProcessManager')
 
 # creating the queue
 queue = pos.MessageQueue('/queue', pos.O_CREAT)
