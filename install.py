@@ -41,7 +41,7 @@ file.close()
 # Reload daemons list
 time.sleep(1)
 print('Reload the daemons list..... \n\n\n')
-os.system('sudo systemctl daemon-reload')
+os.system('systemctl daemon-reload')
 
 manual = '---------- Installation done ----------\n\n' \
          'Some infos: \n\n' \
