@@ -1,5 +1,4 @@
 34	3	5	9	yearly	exit(1)
-6	23	0	0	daily	drop database
 42	7	3	0	weekly	echo test
 1	12	21	0	monthly	error
 34	3	5	9	yearly	exit(1)
