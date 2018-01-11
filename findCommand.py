@@ -69,12 +69,12 @@ fileContent = convertStringToArray()
 
 # cross the array which contains the file content
 for line in fileContent:
-    minute = line[1]
-    hour = line[2]
-    day = line[3]
-    month = line[4]
-    repeat = line[5]
-    command = line[6]
+    minute = line[0]
+    hour = line[1]
+    day = line[2]
+    month = line[3]
+    repeat = line[4]
+    command = line[5]
 
     # get seconds left before the command execution
     seconds = secondsLeft(minute, hour, day, month, repeat)
