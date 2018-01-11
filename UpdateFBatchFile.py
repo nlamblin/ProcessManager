@@ -6,6 +6,9 @@
 
 import sys
 import calendar
+import posix_ipc as pos
+
+# from gobatch2 import updateString
 
 #####
 # Global Constants declaration
@@ -45,7 +48,7 @@ def printUsage():
           '         Lists all recurrent tasks added to FBatch and allow\n'
           '         you to choose which one to delete\n'
           '     list\n'
-          '         Lists all recurent tasks added to FBatch')
+          '         Lists all recurrent tasks added to FBatch')
     exit(2)
 
 def verifyParam(name, value, inf_bound, sup_bound):
@@ -55,11 +58,10 @@ def verifyParam(name, value, inf_bound, sup_bound):
     else:
         return value
 
-# FIXME: Remove base
 def writeToFBatch(**kwargs):
-    return '0\t{minute}\t{hour}\t{day}\t{month}\t{frequency}\t{command}\n'.format(**kwargs)
+    return '{minute}\t{hour}\t{day}\t{month}\t{frequency}\t{command}\n'.format(**kwargs)
 
-def add(args):
+def addNewTask(args):
     #####
     # Var initialization
     #####
@@ -67,10 +69,7 @@ def add(args):
     index = 0               # Index of the first optional arg
     arg = 0                 # Current argument
 
-    data = {'command':'', 'minute':0, 'hour':0, 'frequency':'', 'day':'', 'month':''}
-
-    rec_type = 1            # Period type 1 = day, 2 = week, 3 = month
-    frequency = 'day'       # Describer of the choosen period of time
+    data = {'command':'', 'minute':0, 'hour':0, 'frequency':'0', 'day':'0', 'month':'0'}
 
     args_length = len(args)
 
@@ -96,26 +95,21 @@ def add(args):
 
             index += 1
 
-            # FIXME: Put out list(...) arround calendar
             if arg == '-d' or arg == '--daily':
-                rec_type = 1
                 frequency = 'day'
                 data.update({'frequency':'daily'})
 
             elif arg == '-w' or arg == '--weekly':
-                rec_type = 2
                 day = verifyParam('day of the week', args[index], 1, 7)
                 frequency = list(calendar.day_name)[day - 1]
                 data.update({'frequency':'weekly', 'day':day})
 
             elif arg == '-m' or arg == '--monthly':
-                rec_type = 3
                 day = verifyParam('day', (args[index]), 1, 31)
                 frequency = 'month on the {}'.format(day)
                 data.update({'frequency':'monthly', 'day':day})
 
             elif arg == '-y' or arg == '--yearly':
-                rec_type = 4
                 month = verifyParam('month', int(args[index]), 1, 12)
                 index += 1
                 day = verifyParam('day', int(args[index]), 1, 31)
@@ -128,7 +122,7 @@ def add(args):
 
             file.write(writeToFBatch(**data))
             file.flush()
-            print('Your command "{command}" will be executed at : {hour}:{minute}'.format(**data) + ' each {}'.format(frequency))
+            print('Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data))
 
         except IndexError:
             print('Error : No value behind parameter : {}'.format(arg))
@@ -139,27 +133,86 @@ def add(args):
         finally:
             file.close()
 
-add(['drop database', 23, 54])
-add(['command', 5, 39, '-d'])
-add(['echo test', 7, 42, '-w', 3])
-add(['error', 12, 1, '-m', 21])
-add(['exit(1)', 3, 34, '-y', 9, 5])
-add(['drop database', 23, 6])
-'''
-
-
-def list():
+def listAllTasks(withIndex):
     file = open(FBATCH, 'r')
     lines = file.readlines()
-    print('Batched   Command   Frequency   Minute   Hour   Day   Month')
+    output = []
+    if withIndex:
+        output = 'Id\tMinute\tHour\tDay\tMonth\tFrequency\tCommand\n'
+
     index = 0
     for line in lines:
         index += 1
-        print ('{} : {}'.format(index, line))
+        if withIndex:
+            output += '{}\t{}'.format(index, line)
+        else:
+            output.append(line)
+
     file.close()
 
-def delete(args):
-    print('del')
+    return output
+
+def deleteTask():
+    tasks = listAllTasks(True)
+    lines = listAllTasks(False)
+    tasks_count = len(lines)
+
+    if tasks_count == 0:
+        print('No tasks in FBatfh file for the moment, add some first')
+        exit(0)
+
+    print(tasks)
+    index = raw_input('Give id of the tasks you which to delete (q to exit)')
+
+    if index == 'q' or index == '':
+        print("User aborted deletion")
+        exit(0)
+
+    try:
+        index = int(index)
+
+    except ValueError:
+        print('Id invalid, given "{}"'.format(index))
+        exit(1)
+
+    if index > tasks_count:
+        print('Id not found, "{}" given, only {} tasks'.format(index, tasks_count))
+        exit(1)
+
+    elif index > 0 and index <= tasks_count:
+        line = lines[index - 1]
+        str = 'Deleting tasks {} :\n'.format(index)
+        str += 'Minute\tHour\tDay\tMonth\tFrequency\tCommand\n'
+        str += line
+        str += '\nAre you sure ? (y/N)'
+        print(str)
+
+        try:
+            answer = raw_input(str)
+
+            if not answer or answer == 'n':
+                print("User aborted deletion")
+                exit(0)
+
+
+            elif answer == 'y':
+                lines.pop(index - 1)
+
+                # Resets file content
+                open(FBATCH, 'w').close()
+
+                file = open(FBATCH, 'a')
+                lines = ''.join(lines)
+                file.write(lines)
+                file.close()
+                print('record deleted successfully')
+
+        except SyntaxError:
+            print('Error : Answer invalid')
+
+    else:
+        print('Id not valid')
+        exit(1)
 
 
 #####
@@ -168,18 +221,31 @@ def delete(args):
 
 argv = sys.argv
 
+
+
+
+'''
 if argv[1] == 'list':
     # TODO: Sémaphore
-    list()
+    print(listAllTasks(True))
+
 
 elif argv[1] == 'add':
     # TODO: Sémaphore
-    add(argv[2, len(argv)])
+    addNewTask(argv[2, len(argv)])
 
 elif argv[1] == 'del':
     # TODO: Sémaphore
-    delete(argv[2, len(argv)])
+    deleteTask()
 
 else:
     printUsage()
+
+deleteTask()
+addNewTask(['drop database', 23, 54])
+addNewTask(['command', 5, 39, '-d'])
+addNewTask(['echo test', 7, 42, '-w', 3])
+addNewTask(['error', 12, 1, '-m', 21])
+addNewTask(['exit(1)', 3, 34, '-y', 9, 5])
+addNewTask(['drop database', 23, 6])
 '''
