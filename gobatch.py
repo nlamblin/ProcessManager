@@ -2,16 +2,11 @@
 # -*- coding: utf-8 -*
 
 import os
-import sys
-import signal
-import time
-import datetime
-import calendar
+import posix_ipc as pos
 
+from datetime import datetime
+from time import sleep
 
-#############
-# FUNCTIONS #
-#############
 
 # Function to read the fbatch file
 def readFile():
@@ -22,85 +17,34 @@ def readFile():
             array.append(line.split('\t'))
     return array
 
+def convertFileToString():
+    # first reading of the fbatch file
+    fbatchContent = readFile()
+    stringToSend = ''
+    for line in fbatchContent:
+        for column in line:
+            stringToSend += column + "\t"
+        stringToSend += ";"
+    return stringToSend
 
-# Function that converts in seconds between the current day and the next trigger
-# according to the parameters entered in fbatch
-def convertInSecond(minute, heure, jour, mois, repet):
-    now = datetime.datetime.now()
+# creating the queue
+filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+stringToSend = convertFileToString()
 
-    if repet == "daily":
-        canExecuteToday = now.replace(hour=int(heure), minute=int(minute))
-        if now > canExecuteToday:
-            tomorrow = now + datetime.timedelta(days=1)
-            tomorrow = tomorrow.replace(hour=int(heure), minute=int(minute))
-            second = (tomorrow - now).total_seconds()
+def updateString():
+    global stringToSend
+    stringToSend = convertFileToString()
 
-        else:
-            second = (canExecuteToday - now).total_seconds()
-    elif repet == "weekly":
-        nextWeek = now + datetime.timedelta(days=7)
-        dayOfNextWeek = nextWeek.isoweekday()
-        diff = dayOfNextWeek - int(jour)
-        if diff > 0:
-            diff = diff + 7
-            nextWeek = now - datetime.timedelta(days=diff)
-        else:
-            diff = diff * (-1)
-            diff = diff + 7
-            nextWeek = now + datetime.timedelta(days=diff)
-        nextWeek = nextWeek.replace(hour=int(heure), minute=int(minute))
-        second = (nextWeek - now).total_seconds()
-    elif repet == "monthly":
-        month_days = calendar.monthrange(now.year, now.month)[1]
-        nextmonth = now + datetime.timedelta(days=month_days)
-        if nextmonth.day != now.day:
-            nextmonth.replace(days=1) - datetime.timedelta(days=1)
-        nextmonth = nextmonth.replace(day=int(jour), hour=int(heure), minute=int(minute))
-        second = (nextmonth - now).total_seconds()
-    elif repet == "yearly":
-        nextYear = now.replace(year=now.year + 1, month=int(mois), day=int(jour), hour=int(heure), minute=int(minute))
-        second = (nextYear - now).total_seconds()
-
-    return int(second)
-
-
-globalVarCommand = ""
-
-
-def setCommandToGlobalVar(command):
-    global globalVarCommand
-    globalVarCommand = command
-
-
-# Execution de la commande
-def handler(SIGALRM, frame):
-    os.system(globalVarCommand)
-    exit(0)
-
-
-########
-# MAIN #
-########
-
-commandList = readFile()
-
-for line in commandList:
-    boolean_alarm = line[0]
-    minute = line[1]
-    heure = line[2]
-    jour = line[3]
-    mois = line[4]
-    repet = line[5]
-    command = line[6]
-
-    setCommandToGlobalVar(command)
-    seconds = convertInSecond(minute, heure, jour, mois, repet)
-
-    if boolean_alarm == "0":
-        # On creer une alarme qui s'activera dans x secondes et executera le handler
-        print("creation alarme pour", command, ' execution dans ', seconds, ' secondes')
-        signal.signal(signal.SIGALRM, handler)
-        signal.alarm(seconds)
 
 while True:
+    sleep(60 - datetime.utcnow().second)
+
+    pid = os.fork()
+    if pid == 0:
+        # send the file content
+        filemess.send(stringToSend, 1)
+
+        # executs findCommand.py program
+        os.execl('findCommand.py', 'a')
+
     continue
