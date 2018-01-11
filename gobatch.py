@@ -10,7 +10,7 @@ from time import sleep
 
 # Function to read the fbatch file
 def readFile():
-    with open("FBatch", "r") as f:
+    with open('FBatch', 'r') as f:
         array = []
         for line in f:
             line = line.rstrip()
@@ -30,7 +30,7 @@ def convertFileToString():
 
 
 # creating the queue
-filemess = pos.MessageQueue('/queue', pos.O_CREAT)
+queue = pos.MessageQueue('/queue', pos.O_CREAT)
 stringToSend = convertFileToString()
 
 
@@ -45,7 +45,7 @@ while True:
     pid = os.fork()
     if pid == 0:
         # send the file content
-        filemess.send(stringToSend, 1)
+        queue.send(stringToSend, 1)
 
         # executs findCommand.py program
         os.execl('findCommand.py', 'a')

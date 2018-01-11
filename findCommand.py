@@ -51,8 +51,8 @@ def secondsLeft(minute, hour, day, month, repeat):
 # Get the message and convert the string (which contains the file content) to array
 def convertStringToArray():
     # get the message
-    filemess = pos.MessageQueue('/queue', pos.O_CREAT)
-    stringReceived = filemess.receive()[0]
+    queue = pos.MessageQueue('/queue', pos.O_CREAT)
+    stringReceived = queue.receive()[0]
 
     # split the message and remove the last element because it is empty
     stringSplitted = stringReceived.split(';')[:-1]
