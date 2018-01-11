@@ -17,6 +17,7 @@ def readFile():
             array.append(line.split('\t'))
     return array
 
+
 def convertFileToString():
     # first reading of the fbatch file
     fbatchContent = readFile()
@@ -27,9 +28,11 @@ def convertFileToString():
         stringToSend += ";"
     return stringToSend
 
+
 # creating the queue
 filemess = pos.MessageQueue('/queue', pos.O_CREAT)
 stringToSend = convertFileToString()
+
 
 def updateString():
     global stringToSend
