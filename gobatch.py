@@ -33,6 +33,7 @@ stringToSend = convertFileToString()
 
 def addToString(stringUpdated):
     global stringToSend
+    strRead = ""
     for line in stringUpdated:
         for column in line:
             strRead += column + "\t"
