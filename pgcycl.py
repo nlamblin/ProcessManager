@@ -239,7 +239,7 @@ def V():
     logInfo('[PGCYCL]: Semaphore released', False)
 
 
-def useSemaphore(function, args):
+def useSemaphore(function, args, update_required):
     try:
         P()  # semaphore.acquire()
         if args is None:
@@ -249,6 +249,10 @@ def useSemaphore(function, args):
 
     finally:
         V()  # semaphore.release()
+        if update_required:
+            logInfo('[GOBATCH]: Releasing semaphore', False)
+            pos.Semaphore('/FBatch_Updated', pos.O_CREAT).release()
+            logInfo('[GOBATCH]: Semaphore released', False)
 
 
 #####
@@ -277,13 +281,13 @@ if len(argv) >= 2:
         logInfo('[PGCYCL]: Using existing semaphore', False)
 
     if param == 'list':
-        useSemaphore(listAllTasks, True)
+        useSemaphore(listAllTasks, True, False)
 
     elif param == 'add':
-        useSemaphore(addNewTask, argv[2, len(argv) - 1])
+        useSemaphore(addNewTask, argv[2, len(argv) - 1], True)
 
     elif param == 'del':
-        useSemaphore(deleteTask, None)
+        useSemaphore(deleteTask, None, True)
 
     else:
         logError('[PGCYCL]: Command not found', True, True)
