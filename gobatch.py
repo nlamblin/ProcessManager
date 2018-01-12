@@ -30,25 +30,25 @@ def convertFileToString():
 
 
 # change the working directory
-os.chdir('/usr/local/bin/ProcessManager')
+# os.chdir('/usr/local/bin/ProcessManager')
 
 # creating the queue
-queue = pos.MessageQueue('/queue', pos.O_CREAT)
+queueContentFile = pos.MessageQueue('/queue', pos.O_CREAT)
 stringToSend = convertFileToString()
 
 
-def updateString():
-    global stringToSend
-    stringToSend = convertFileToString()
-
-
 while True:
+
+    if #semaphore
+        stringToSend = convertFileToString()
+        # changerSemaphore
+
+    # wait until the next minute
     sleep(60 - datetime.utcnow().second)
 
-    pid = os.fork()
-    if pid == 0:
+    if os.fork() == 0:
         # send the file content
-        queue.send(stringToSend, 1)
+        queueContentFile.send(stringToSend, 1)
 
         # executs findCommand.py program
         os.execl('findCommand.py', 'a')
