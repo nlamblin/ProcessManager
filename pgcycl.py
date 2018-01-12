@@ -264,9 +264,13 @@ def useSemaphore(func, args, update_required):
     finally:
         V()  # semaphore.release()
         if update_required:
-            logInfo('[GOBATCH]: Releasing semaphore', False)
-            pos.Semaphore('/FBatch_Updated', pos.O_CREAT).release()
-            logInfo('[GOBATCH]: Semaphore released', False)
+            try:
+                logInfo('[GOBATCH]: Releasing semaphore', False)
+                pos.Semaphore('/FBatch_Updated', pos.O_CREAT).release()
+                logInfo('[GOBATCH]: Semaphore released', False)
+
+            finally:
+                pos.Semaphore('/FBatch_Updated', pos.O_CREAT).release()
 
     return res
 
