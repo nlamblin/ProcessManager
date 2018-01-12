@@ -109,7 +109,6 @@ def info_init():
 
 def error_init():
     # Semaphore for error log file critical ressource
-    #error_semaphore = None
     try:
         # Creating semaphore
         logMessage('[ERROR_LOGGER]: Creating semaphore', STDOUT_FILE, 2)
@@ -123,6 +122,3 @@ def error_init():
         logMessage('[ERROR_LOGGER]: Using existing semaphore', STDOUT_FILE, 2)
 
     return error_semaphore
-
-
-# TODO: Kill (clean semaphore)

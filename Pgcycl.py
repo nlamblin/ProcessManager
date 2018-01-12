@@ -6,7 +6,6 @@
 #####
 
 import sys
-import calendar
 import posix_ipc as pos
 
 # from gobatch import updateString
@@ -19,9 +18,6 @@ from logger import logError
 #####
 
 FBATCH = 'fbatch'
-
-# TODO: Tests
-# TODO: Semaphore dans le logger
 
 
 #####
@@ -112,25 +108,20 @@ def addNewTask(args):
             index += 1
 
             if arg == '-d' or arg == '--daily':
-                frequency = 'day'
                 data.update({'frequency': 'daily'})
 
             elif arg == '-w' or arg == '--weekly':
                 day = verifyParam('day of the week', args[index], 1, 7)
-                frequency = list(calendar.day_name)[day - 1]
                 data.update({'frequency': 'weekly', 'day': day})
 
             elif arg == '-m' or arg == '--monthly':
                 day = verifyParam('day', (args[index]), 1, 31)
-                frequency = 'month on the {}'.format(day)
                 data.update({'frequency': 'monthly', 'day': day})
 
             elif arg == '-y' or arg == '--yearly':
                 month = verifyParam('month', int(args[index]), 1, 12)
                 index += 1
                 day = verifyParam('day', int(args[index]), 1, 31)
-                month_name = list(calendar.month_name)[month - 1]
-                frequency = 'year on the {} of {}'.format(day, month_name)
                 data.update({'frequency': 'yearly', 'day': day, 'month': month})
 
             else:
@@ -248,6 +239,18 @@ def V():
     logInfo('[PGCYCL]: Semaphore released', False)
 
 
+def useSemaphore(function, args):
+    try:
+        P()  # semaphore.acquire()
+        if args is None:
+            function()
+        else:
+            function(*args)
+
+    finally:
+        V()  # semaphore.release()
+
+
 #####
 # Main execution
 #####
@@ -256,45 +259,35 @@ argv = sys.argv
 
 if len(argv) >= 2:
 
-    if argv[1] == 'list':
-        print(listAllTasks(True))
+    param = argv[1]
 
-    elif argv[1] == 'help':
+    if param == 'help' or param == '-h' or param == '?':
         printUsage()
 
-    elif argv[1] != 'add' and argv[1] != 'del':
-        logError('[PGCYCL]: Command not found', True, True)
-        printUsage()
+    try:
+        # Creating semaphore
+        logInfo('[PGCYCL]: Creating semaphore', False)
+        semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT | pos.O_EXCL, initial_value=1)
+        logInfo('[PGCYCL]: Created semaphore', False)
+
+    except pos.ExistentialError:
+        # Semaphore already created
+        logInfo('[PGCYCL]: Semaphore already created', False)
+        semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
+        logInfo('[PGCYCL]: Using existing semaphore', False)
+
+    if param == 'list':
+        useSemaphore(listAllTasks, True)
+
+    elif param == 'add':
+        useSemaphore(addNewTask, argv[2, len(argv) - 1])
+
+    elif param == 'del':
+        useSemaphore(deleteTask, None)
 
     else:
-        try:
-            # Creating semaphore
-            logInfo('[PGCYCL]: Creating semaphore', False)
-            semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT|pos.O_EXCL, initial_value=1)
-            logInfo('[PGCYCL]: Created semaphore', False)
-
-        except pos.ExistentialError:
-            # Semaphore already created
-            logInfo('[PGCYCL]: Semaphore already created', False)
-            semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
-            logInfo('[PGCYCL]: Using existing semaphore', False)
-
-        if argv[1] == 'add':
-            try:
-                P()  # semaphore.acquire()
-                addNewTask(argv[2, len(argv) - 1])
-
-            finally:
-                V()  # semaphore.release()
-
-        elif argv[1] == 'del':
-            try:
-                P()  # semaphore.acquire()
-                deleteTask()
-
-            finally:
-                V()  # semaphore.release()
-
+        logError('[PGCYCL]: Command not found', True, True)
+        printUsage()
 
 '''
 addNewTask(['drop database', 23, 54])
