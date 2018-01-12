@@ -9,15 +9,16 @@ import os
 import datetime
 import posix_ipc as pos
 
+from os.path import expanduser
+
 #####
 # Global var declaration
 #####
 
 
-# TODO: Change during install
+STDOUT_FILE = expanduser('~') + '/.processManager_stdout.log'
+STDERR_FILE = expanduser('~') + '/.processManager_stderr.log'
 
-STDOUT_FILE = 'log-stdout'
-STDERR_FILE = 'log-stderr'
 
 #####
 # Function declaration
@@ -95,7 +96,7 @@ def info_init():
     try:
         # Creating semaphore
         logMessage('[INFO_LOGGER]: Creating semaphore', STDOUT_FILE, 2)
-        info_semaphore = pos.Semaphore('/Info_Logger', pos.O_CREAT|pos.O_EXCL, initial_value=1)
+        info_semaphore = pos.Semaphore('/Info_Logger', pos.O_CREAT | pos.O_EXCL, initial_value=1)
         logMessage('[INFO_LOGGER]: Created semaphore', STDOUT_FILE, 2)
 
     except pos.ExistentialError:
@@ -112,7 +113,7 @@ def error_init():
     try:
         # Creating semaphore
         logMessage('[ERROR_LOGGER]: Creating semaphore', STDOUT_FILE, 2)
-        error_semaphore = pos.Semaphore('/Error_Logger', pos.O_CREAT|pos.O_EXCL, initial_value=1)
+        error_semaphore = pos.Semaphore('/Error_Logger', pos.O_CREAT | pos.O_EXCL, initial_value=1)
         logMessage('[ERROR_LOGGER]: Created semaphore', STDOUT_FILE, 2)
 
     except pos.ExistentialError:

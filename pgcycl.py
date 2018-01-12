@@ -11,13 +11,14 @@ import posix_ipc as pos
 
 from logger import logInfo
 from logger import logError
+from os.path import expanduser
 
 
 #####
 # Global var declaration
 #####
 
-FBATCH = 'fbatch'
+FBATCH = expanduser('~') + '/.fbatch'
 
 
 #####
@@ -29,7 +30,7 @@ FBATCH = 'fbatch'
 def printUsage():
     print('Usage : pgcycl man page\n'
           'PGCYCL\n'
-          '     Used to manage programs launched by the daemon gobatch\n\n'
+          '     Used to manage programs launched by the daemon gobatch \n\n'
           ''
           'SYNOPSIS\n'
           '     pgcycl add command hour minute [-d day]\n\n'
