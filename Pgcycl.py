@@ -10,24 +10,26 @@ import calendar
 import posix_ipc as pos
 
 # from gobatch import updateString
-from Logger import logInfo
-from Logger import logError
+from logger import logInfo
+from logger import logError
+
 
 #####
-# Global Constants declaration
+# Global var declaration
 #####
 
-FBATCH = 'FBatch'
+FBATCH = 'fbatch'
 
-# semaphore.unlink()
-# exit()
+# TODO: Tests
+# TODO: Semaphore dans le logger
+
 
 #####
 # Functions definition
 #####
 
 
-# TODO: FIXME: Better man page
+# TODO: Better man page
 def printUsage():
     print('Usage : pgcycl man page\n'
           'PGCYCL\n'
@@ -53,10 +55,10 @@ def printUsage():
           '         -y, --yearly\n'
           '             Planned recurrent execution on a yearly basis\n\n'
           '     del\n'
-          '         Lists all recurrent tasks added to FBatch and allow\n'
+          '         Lists all recurrent tasks added to fbatch and allow\n'
           '         you to choose which one to delete\n'
           '     list\n'
-          '         Lists all recurrent tasks added to FBatch'
+          '         Lists all recurrent tasks added to fbatch'
           ''
           '     help\n'
           '         Display this man page')
@@ -65,7 +67,7 @@ def printUsage():
 
 def verifyParam(name, value, inf_bound, sup_bound):
     if value < inf_bound or value > sup_bound:
-        logError('Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value), True, True)
+        logError('[PGCYCL]: Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value), True, True)
         exit(2)
     else:
         return value
@@ -137,14 +139,14 @@ def addNewTask(args):
             file.write(writeToFBatch(**data))
             file.flush()
             # updateString()
-            logInfo('Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
+            logInfo('[PGCYCL]: Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
 
         except IndexError:
-            logError('Error : No value behind parameter : {}'.format(arg), True, True)
+            logError('[PGCYCL]: Error : No value behind parameter : {}'.format(arg), True, True)
             exit(2)
 
         except ValueError:
-            logError('Parameter {} needs integer value, given {}'.format(arg, args[index]), True, True)
+            logError('[PGCYCL]: Parameter {} needs integer value, given {}'.format(arg, args[index]), True, True)
             exit(2)
 
         finally:
@@ -177,25 +179,25 @@ def deleteTask():
     tasks_count = len(lines)
 
     if tasks_count == 0:
-        logError('No tasks in FBatch file for the moment, add some first', True, False)
+        logError('[PGCYCL]: No tasks in fbatch file for the moment, add some first', True, False)
         exit(0)
 
     print(tasks)
-    index = input('Give id of the tasks you which to delete (q to exit)')
+    index = input('Give id of the tasks you which to delete (q to exit) ')
 
-    if index == 'q' or index == '':
-        logInfo("User aborted deletion", True)
+    if index == 'q' or index == '' or index == 'exit':
+        logInfo('[PGCYCL]: User aborted deletion', True)
         exit(0)
 
     try:
         index = int(index)
 
     except ValueError:
-        logError('Id invalid, given "{}"'.format(index), True, True)
+        logError('[PGCYCL]: Id invalid, given "{}"'.format(index), True, True)
         exit(1)
 
     if index > tasks_count:
-        logError('Id not found, "{}" given, only {} tasks'.format(index, tasks_count), True, True)
+        logError('[PGCYCL]: Id not found, "{}" given, only {} tasks'.format(index, tasks_count), True, True)
         exit(1)
 
     elif 0 < index <= tasks_count:
@@ -203,7 +205,7 @@ def deleteTask():
         output = 'Deleting tasks {} :\n'.format(index)
         output += 'Minute\tHour\tDay\tMonth\tFrequency\tCommand\n'
         output += line
-        output += '\nAre you sure ? (y/N)'
+        output += '\nAre you sure ? (y/N) '
 
         try:
             answer = input(output)
@@ -223,27 +225,27 @@ def deleteTask():
                 fbatch_file.write(lines)
                 fbatch_file.close()
                 # updateString()
-                logInfo('Recurrent task deleted successfully', True)
+                logInfo('[PGCYCL]: Recurrent task deleted successfully', True)
 
         except SyntaxError:
-            logError('Error : Answer invalid', True, True)
+            logError('[PGCYCL]: Error : Answer invalid', True, True)
             exit(1)
 
     else:
-        logError('Id not valid', True, True)
+        logError('[PGCYCL]: Id not valid', True, True)
         exit(1)
 
 
 def P():
-    logInfo('[PGCYCL] Acquiring semaphore', False)
+    logInfo('[PGCYCL]: Acquiring semaphore', False)
     semaphore.acquire()
-    logInfo('[PGCYCL] Semaphore acquired', False)
+    logInfo('[PGCYCL]: Semaphore acquired', False)
 
 
 def V():
-    logInfo('[PGCYCL] Releasing semaphore', False)
+    logInfo('[PGCYCL]: Releasing semaphore', False)
     semaphore.release()
-    logInfo('[PGCYCL] Semaphore released', False)
+    logInfo('[PGCYCL]: Semaphore released', False)
 
 
 #####
@@ -261,33 +263,33 @@ if len(argv) >= 2:
         printUsage()
 
     elif argv[1] != 'add' and argv[1] != 'del':
-        logError('Command not found', True, True)
+        logError('[PGCYCL]: Command not found', True, True)
         printUsage()
 
     else:
         try:
             # Creating semaphore
-            logInfo('[PGCYCL] Creating semaphore', False)
-            semaphore = pos.Semaphore('/S1', pos.O_CREAT|pos.O_EXCL, initial_value=1)
-            logInfo('[PGCYCL] Created semaphore', False)
+            logInfo('[PGCYCL]: Creating semaphore', False)
+            semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT|pos.O_EXCL, initial_value=1)
+            logInfo('[PGCYCL]: Created semaphore', False)
 
         except pos.ExistentialError:
             # Semaphore already created
-            logInfo('[PGCYCL] Semaphore already created', False)
-            semaphore = pos.Semaphore('/S1', pos.O_CREAT)
-            logInfo('[PGCYCL] Using existing semaphore', False)
+            logInfo('[PGCYCL]: Semaphore already created', False)
+            semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
+            logInfo('[PGCYCL]: Using existing semaphore', False)
 
         if argv[1] == 'add':
-            P()  # semaphore.acquire()
             try:
+                P()  # semaphore.acquire()
                 addNewTask(argv[2, len(argv) - 1])
 
             finally:
                 V()  # semaphore.release()
 
         elif argv[1] == 'del':
-            P()  # semaphore.acquire()
             try:
+                P()  # semaphore.acquire()
                 deleteTask()
 
             finally:

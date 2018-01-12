@@ -10,7 +10,7 @@ from time import sleep
 
 # Function to read the fbatch file
 def readFile():
-    with open('FBatch', 'r') as f:
+    with open('fbatch', 'r') as f:
         array = []
         for line in f:
             line = line.rstrip()
