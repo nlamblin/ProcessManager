@@ -225,15 +225,25 @@ def deleteTask():
 
 
 def P():
-    logInfo('[PGCYCL]: Acquiring semaphore', False)
-    semaphore.acquire()
-    logInfo('[PGCYCL]: Semaphore acquired', False)
+    semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
+    try:
+        logInfo('[PGCYCL]: Acquiring semaphore', False)
+        semaphore.acquire()
+        logInfo('[PGCYCL]: Semaphore acquired', False)
+
+    except:
+        semaphore.release()
 
 
 def V():
-    logInfo('[PGCYCL]: Releasing semaphore', False)
-    semaphore.release()
-    logInfo('[PGCYCL]: Semaphore released', False)
+    semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
+    try:
+        logInfo('[PGCYCL]: Releasing semaphore', False)
+        semaphore.release()
+        logInfo('[PGCYCL]: Semaphore released', False)
+
+    except:
+        semaphore.release()
 
 
 def useSemaphore(function, args, update_required):
