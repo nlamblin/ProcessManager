@@ -6,6 +6,7 @@
 #####
 
 import sys
+import os
 import posix_ipc as pos
 
 from logger import logInfo
@@ -69,7 +70,7 @@ def verifyParam(name, value, inf_bound, sup_bound):
 
 
 def writeToFBatch(**kwargs):
-    return '{minute}\t{hour}\t{day}\t{month}\t{frequency}\t{command}\n'.format(**kwargs)
+    return '{minute}\t{hour}\t{day}\t{month}\t{frequency}\t{command}'.format(**kwargs)
 
 
 def addNewTask(args):
@@ -92,11 +93,11 @@ def addNewTask(args):
         file = open(FBATCH, 'a')
         try:
             index += 1
-            hour = verifyParam('hour', int(args[index]), 0, 23)
-            data.update({'hour':hour})
-            index += 1
             minute = verifyParam('minute', int(args[index]), 0, 59)
             data.update({'minute': minute})
+            index += 1
+            hour = verifyParam('hour', int(args[index]), 0, 23)
+            data.update({'hour': hour})
             index += 1
 
             if index < args_length:
@@ -126,7 +127,10 @@ def addNewTask(args):
             else:
                 printUsage()
 
-            file.write(writeToFBatch(**data))
+            content = writeToFBatch(**data)
+            if os.stat(FBATCH).st_size != 0:
+                content = '\n' + content
+            file.write(content)
             file.flush()
             logInfo('[PGCYCL]: Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
 
@@ -205,6 +209,8 @@ def deleteTask():
 
             elif answer == 'y':
                 lines.pop(index - 1)
+                last = len(lines) - 1
+                lines[last] = lines[last].rstrip()
 
                 # Resets file content
                 open(FBATCH, 'w').close()
@@ -303,8 +309,9 @@ if len(argv) >= 2:
         logError('[PGCYCL]: Command not found', True, True)
         printUsage()
 
+addNewTask(['drop database', 54, 23])
 '''
-addNewTask(['drop database', 23, 54])
+deleteTask()
 addNewTask(['command', 5, 39, '-d'])
 addNewTask(['echo test', 7, 42, '-w', 3])
 addNewTask(['error', 12, 1, '-m', 21])
