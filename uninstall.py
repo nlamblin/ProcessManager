@@ -4,16 +4,16 @@
 import os
 import time
 
-# kill the service
-print('Kill ProcessManager service.....')
-os.system('systemctl kill processManager.service')
+print('---------- Uninstallation start ----------\n\n')
 
-# remove the service file to /etc/systemd/system/
+# remove log file
 time.sleep(1)
-print('Remove the service file.....')
-os.system('rm /etc/systemd/system/processManager.service')
+print('Remove log files .....')
+os.system('rm ~/.processManager_stdout.log')
+os.system('rm ~/.processManager_stderr.log')
+os.system('rm ~/.fbatch')
 
-# remove ProcessManager to /usr/local/bin
-time.sleep(1)
-print('Remove sources of ProcessManager.....')
-os.system('rm -r /usr/local/bin/ProcessManager')
+# Clear semaphore
+os.system('python ' + os.getcwd() + '/cleanSemaphore.py')
+
+print('\n\n ---------- Uninstallation done ----------')
