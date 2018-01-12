@@ -1,12 +1,12 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 # -*- coding: utf8 -*-
 
 #####
 # Imports
 #####
 
+import os
 import datetime
-import atexit
 import posix_ipc as pos
 
 #####
@@ -42,7 +42,6 @@ def V(semaphore, name):
 
     except:
         semaphore.release()
-        
 
 
 def logMessage(message, file, severity):
@@ -52,10 +51,8 @@ def logMessage(message, file, severity):
     elif severity == 1:
         message = '[WARNING]: ' + message
 
-    input()
-
     now = datetime.datetime.now()
-    date = '[{}:{}:{}.{}]'.format(now.hour, now.minute, now.second, now.microsecond)
+    date = '[{}:{}:{}.{}][PID:{}]'.format(now.hour, now.minute, now.second, now.microsecond, os.getpid())
     message = date + message + '\n'
 
     info_file = open(file, 'a')
