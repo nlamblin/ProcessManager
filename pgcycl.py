@@ -8,7 +8,6 @@
 import sys
 import posix_ipc as pos
 
-# from gobatch import updateString
 from logger import logInfo
 from logger import logError
 
@@ -129,7 +128,6 @@ def addNewTask(args):
 
             file.write(writeToFBatch(**data))
             file.flush()
-            # updateString()
             logInfo('[PGCYCL]: Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
 
         except IndexError:
@@ -215,7 +213,6 @@ def deleteTask():
                 lines = ''.join(lines)
                 fbatch_file.write(lines)
                 fbatch_file.close()
-                # updateString()
                 logInfo('[PGCYCL]: Recurrent task deleted successfully', True)
 
         except SyntaxError:

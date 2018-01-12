@@ -2,10 +2,9 @@
 # -*- coding: utf8 -*-
 
 import os
-
-# kill the service
 import time
 
+# kill the service
 print('Kill ProcessManager service.....')
 os.system('systemctl kill processManager.service')
 
