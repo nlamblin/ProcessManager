@@ -246,13 +246,14 @@ def V():
         semaphore.release()
 
 
-def useSemaphore(function, args, update_required):
+def useSemaphore(func, args, update_required):
+    res = None
     try:
         P()  # semaphore.acquire()
         if args is None:
-            function()
+            res = func()
         else:
-            function(*args)
+            res = func(args)
 
     finally:
         V()  # semaphore.release()
@@ -260,6 +261,8 @@ def useSemaphore(function, args, update_required):
             logInfo('[GOBATCH]: Releasing semaphore', False)
             pos.Semaphore('/FBatch_Updated', pos.O_CREAT).release()
             logInfo('[GOBATCH]: Semaphore released', False)
+
+    return res
 
 
 #####
