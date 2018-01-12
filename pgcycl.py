@@ -132,7 +132,7 @@ def addNewTask(args):
                 content = '\n' + content
             file.write(content)
             file.flush()
-            logInfo('[PGCYCL]: Added command "{command}" executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
+            logInfo('[PGCYCL]: Added command "{command}" will be executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
 
         except IndexError:
             logError('[PGCYCL]: Error : No value behind parameter : {}'.format(arg), True, True)
@@ -300,7 +300,7 @@ if len(argv) >= 2:
         useSemaphore(listAllTasks, True, False)
 
     elif param == 'add':
-        useSemaphore(addNewTask, argv[2, len(argv) - 1], True)
+        useSemaphore(addNewTask, argv[2:], True)
 
     elif param == 'del':
         useSemaphore(deleteTask, None, True)
@@ -309,9 +309,10 @@ if len(argv) >= 2:
         logError('[PGCYCL]: Command not found', True, True)
         printUsage()
 
-addNewTask(['drop database', 54, 23])
+
 '''
 deleteTask()
+addNewTask(['drop database', 54, 23])
 addNewTask(['command', 5, 39, '-d'])
 addNewTask(['echo test', 7, 42, '-w', 3])
 addNewTask(['error', 12, 1, '-m', 21])
