@@ -77,5 +77,5 @@ for line in fileContent:
     # get seconds left before the command execution
     seconds = secondsLeft(minute, hour, day, month, repeat)
     if seconds == 0:
-        logInfo('[GOBATCH]: Command ' + command + ' executes', False)
+        logInfo('[GOBATCH]: Command "' + command + '" executes', False)
         os.system(command)

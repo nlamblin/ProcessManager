@@ -15,7 +15,7 @@ processManagerPath = os.getcwd()
 # Copy fbatch file to ~/.fbatch
 time.sleep(1)
 print('Create .fbatch to /home/user/ .....')
-os.system('cp ' + processManagerPath + '/fbatch ~/.fbatch')
+os.system('touch ~/.fbatch')
 
 # Create log files
 time.sleep(1)
