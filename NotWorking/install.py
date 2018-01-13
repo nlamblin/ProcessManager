@@ -59,11 +59,11 @@ os.system('python /usr/local/bin/ProcessManager/cleanSemaphore.py')
 time.sleep(1)
 print('Give rights to files ..... \n\n')
 os.chmod('/usr/local/bin/ProcessManager', 0o777)
-os.system('chmod 777 /usr/local/bin/ProcessManager/')
-os.system('chmod 777 ~/.fbatch')
-os.system('chmod 777 ~/.processManager_stdout.log')
-os.system('chmod 777 ~/.processManager_stderr.log')
-os.system('chmod 777 /etc/systemd/system/processManager.service')
+os.system('chmod 744 /usr/local/bin/ProcessManager/')
+os.system('chmod 644 ~/.fbatch')
+os.system('chmod 644 ~/.processManager_stdout.log')
+os.system('chmod 644 ~/.processManager_stderr.log')
+os.system('chmod 744 /etc/systemd/system/processManager.service')
 
 manual = '---------- Installation done ----------\n\n' \
          'Some infos: \n\n' \
