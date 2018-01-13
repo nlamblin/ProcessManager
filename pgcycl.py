@@ -303,7 +303,7 @@ if len(argv) >= 2:
         printUsage()
 
     if param == 'list':
-        useSemaphore(listAllTasks, True, False)
+        print(useSemaphore(listAllTasks, True, False))
 
     elif param == 'add':
         useSemaphore(addNewTask, argv[2:], True)
