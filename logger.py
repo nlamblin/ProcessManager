@@ -16,11 +16,8 @@ from os.path import expanduser
 #####
 
 
-#STDOUT_FILE = expanduser('~') + '/.processManager_stdout.log'
-#STDERR_FILE = expanduser('~') + '/.processManager_stderr.log'
-
-STDOUT_FILE = 'log-stdout'
-STDERR_FILE = 'log-stderr'
+STDOUT_FILE = expanduser('~') + '/.processManager_stdout.log'
+STDERR_FILE = expanduser('~') + '/.processManager_stderr.log'
 
 
 #####

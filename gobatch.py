@@ -72,6 +72,9 @@ semaphore = getSemaphore()
 
 while True:
 
+    # wait until the next minute
+    sleep(60 - datetime.utcnow().second)
+
     # try to get the semaphore to know if the file has been updated
     try:
         semaphore.acquire(0)
@@ -85,9 +88,6 @@ while True:
         logInfo('[GOBATCH]: Semaphore acquired', False)
 
     finally:
-        # wait until the next minute
-        sleep(60 - datetime.utcnow().second)
-
         logInfo('[GOBATCH]: Creating child process', False)
         if os.fork() == 0:
             # send the file content

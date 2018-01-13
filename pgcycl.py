@@ -18,8 +18,7 @@ from os.path import expanduser
 # Global var declaration
 #####
 
-# FBATCH = expanduser('~') + '/.fbatch'
-FBATCH = 'fbatch'
+FBATCH = expanduser('~') + '/.fbatch'
 
 
 #####

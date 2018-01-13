@@ -19,8 +19,8 @@ os.system('cp ' + processManagerPath + '/fbatch ~/.fbatch')
 
 # Create log files
 time.sleep(1)
-print('Create log files into ~/.processManager_stdout.log and ~/.processManager_stderr.log .....')
+print('Create log files into ~/.processManager_stdout.log and ~/.processManager_stderr.log .....\n\n')
 os.system('touch ~/.processManager_stdout.log')
-os.system('touch ~/.processManager_stderr.log \n\n')
+os.system('touch ~/.processManager_stderr.log ')
 
 print('---------- Installation done ---------')
