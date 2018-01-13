@@ -6,6 +6,9 @@ import datetime
 import calendar
 import posix_ipc as pos
 
+from logger import logError
+from logger import logInfo
+
 
 # Function that converts in seconds between the current day and the next trigger
 # according to the parameters entered in fbatch
@@ -45,6 +48,7 @@ def secondsLeft(minute, hour, day, month, repeat):
 # Get the message and convert the string (which contains the file content) to array
 def convertStringToArray():
     # get the message
+    logInfo('[GOBATCH]: Receive the message with the queue', False)
     queue = pos.MessageQueue('/queue', pos.O_CREAT)
     stringReceived = queue.receive()[0]
 
@@ -73,4 +77,5 @@ for line in fileContent:
     # get seconds left before the command execution
     seconds = secondsLeft(minute, hour, day, month, repeat)
     if seconds == 0:
+        logInfo('[GOBATCH]: Command ' + command + ' executes', False)
         os.system(command)

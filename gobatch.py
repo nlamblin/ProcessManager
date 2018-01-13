@@ -61,6 +61,7 @@ def exit_handler():
 createSemaphore()
 
 # creating the queue
+logInfo('[GOBATCH]: Creating the queue', False)
 queueContentFile = pos.MessageQueue('/queue', pos.O_CREAT)
 stringToSend = convertFileToString()
 
@@ -91,6 +92,7 @@ while True:
         logInfo('[GOBATCH]: Creating child process', False)
         if os.fork() == 0:
             # send the file content
+            logInfo('[GOBATCH]: Send the message with the queue', False)
             queueContentFile.send(stringToSend, 1)
 
             # executs findCommand.py program
