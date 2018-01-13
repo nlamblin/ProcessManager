@@ -276,6 +276,20 @@ def useSemaphore(func, args, update_required):
     return res
 
 
+def createSemaphore():
+    try:
+        # Creating semaphore
+        logInfo('[PGCYCL]: Creating semaphore', False)
+        semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT | pos.O_EXCL, initial_value=1)
+        logInfo('[PGCYCL]: Created semaphore', False)
+
+    except pos.ExistentialError:
+        # Semaphore already created
+        logInfo('[PGCYCL]: Semaphore already created', False)
+        semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
+        logInfo('[PGCYCL]: Using existing semaphore', False)
+
+
 #####
 # Main execution
 #####
@@ -288,18 +302,6 @@ if len(argv) >= 2:
 
     if param == 'help' or param == '-h' or param == '?':
         printUsage()
-
-    try:
-        # Creating semaphore
-        logInfo('[PGCYCL]: Creating semaphore', False)
-        semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT | pos.O_EXCL, initial_value=1)
-        logInfo('[PGCYCL]: Created semaphore', False)
-
-    except pos.ExistentialError:
-        # Semaphore already created
-        logInfo('[PGCYCL]: Semaphore already created', False)
-        semaphore = pos.Semaphore('/FBatch_Semaphore', pos.O_CREAT)
-        logInfo('[PGCYCL]: Using existing semaphore', False)
 
     if param == 'list':
         useSemaphore(listAllTasks, True, False)
