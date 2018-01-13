@@ -18,7 +18,8 @@ from os.path import expanduser
 # Global var declaration
 #####
 
-FBATCH = expanduser('~') + '/.fbatch'
+# FBATCH = expanduser('~') + '/.fbatch'
+FBATCH = 'fbatch'
 
 
 #####
@@ -314,10 +315,8 @@ if len(argv) >= 2:
         logError('[PGCYCL]: Command not found', True, True)
         printUsage()
 
-
 '''
 deleteTask()
-addNewTask(['drop database', 54, 23])
 addNewTask(['command', 5, 39, '-d'])
 addNewTask(['echo test', 7, 42, '-w', 3])
 addNewTask(['error', 12, 1, '-m', 21])
