@@ -9,6 +9,7 @@ from logger import logError
 from logger import logInfo
 from pgcycl import useSemaphore
 from pgcycl import listAllTasks
+from pgcycl import createSemaphore
 from datetime import datetime
 from time import sleep
 
@@ -36,7 +37,7 @@ def convertFileToString():
 
 
 # Get semaphore FBatch-Updated
-def checkIfUpdate():
+def getSemaphore():
     try:
         # Creating semaphore
         logInfo('[GOBATCH]: Creating semaphore', False)
@@ -56,6 +57,8 @@ def checkIfUpdate():
 def exit_handler():
     pos.Semaphore('/FBatch_Updated', pos.O_CREAT).unlink()
 
+# create semaphore
+createSemaphore()
 
 # creating the queue
 queueContentFile = pos.MessageQueue('/queue', pos.O_CREAT)
@@ -64,10 +67,10 @@ stringToSend = convertFileToString()
 # Use when gobatch.py is kill
 atexit.register(exit_handler)
 
-while True:
+# Create and get semaphore
+semaphore = getSemaphore()
 
-    # get the semaphore
-    semaphore = checkIfUpdate()
+while True:
 
     # try to get the semaphore to know if the file has been updated
     try:
