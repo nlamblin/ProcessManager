@@ -57,6 +57,7 @@ def getSemaphore():
 def exit_handler():
     pos.Semaphore('/FBatch_Updated', pos.O_CREAT).unlink()
 
+
 # create semaphore
 createSemaphore()
 
