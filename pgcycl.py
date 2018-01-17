@@ -13,7 +13,6 @@ from logger import logInfo
 from logger import logError
 from os.path import expanduser
 
-
 #####
 # Global var declaration
 #####
@@ -62,9 +61,22 @@ def printUsage():
     exit(2)
 
 
+def getinput():
+    try:
+        x = input()
+    except NameError as e:
+        for pname, pvalue in vars(e).iteritems():
+            print((pname, ": ", pvalue))
+        error_string = str(e)
+        x = error_string[error_string.index('\'') + 1: error_string.rfind('\'')]
+    return x
+
+
 def verifyParam(name, value, inf_bound, sup_bound):
     if value < inf_bound or value > sup_bound:
-        logError('[PGCYCL]: Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value), True, True)
+        logError(
+            '[PGCYCL]: Error, {} must be in the range [{},{}], given : {}'.format(name, inf_bound, sup_bound, value),
+            True, True)
         exit(2)
     else:
         return value
@@ -79,8 +91,8 @@ def addNewTask(args):
     # Var initialization
     #####
 
-    index = 0               # Index of the first optional arg
-    arg = 0                 # Current argument
+    index = 0  # Index of the first optional arg
+    arg = 0  # Current argument
 
     data = {'command': '', 'minute': 0, 'hour': 0, 'frequency': '0', 'day': '0', 'month': '0'}
 
@@ -133,7 +145,9 @@ def addNewTask(args):
                 content = '\n' + content
             file.write(content)
             file.flush()
-            logInfo('[PGCYCL]: Added command "{command}" will be executed at : {hour}:{minute} on a {frequency} basis'.format(**data), True)
+            logInfo(
+                '[PGCYCL]: Added command "{command}" will be executed at : {hour}:{minute} on a {frequency} basis'.format(
+                    **data), True)
 
         except IndexError:
             logError('[PGCYCL]: Error : No value behind parameter : {}'.format(arg), True, True)
@@ -177,7 +191,8 @@ def deleteTask():
         exit(0)
 
     print(tasks)
-    index = input('Give id of the tasks you which to delete (q to exit) ')
+    print('Give id of the tasks you which to delete (q to exit) ')
+    index = getinput()
 
     if index == 'q' or index == '' or index == 'exit':
         logInfo('[PGCYCL]: User aborted deletion', True)
@@ -202,7 +217,8 @@ def deleteTask():
         output += '\nAre you sure ? (y/N) '
 
         try:
-            answer = input(output)
+            print(output)
+            answer = getinput()
 
             if not answer or answer == 'n':
                 logInfo("User aborted deletion", True)
